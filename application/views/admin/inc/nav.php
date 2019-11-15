@@ -26,6 +26,7 @@
                         <li><a href="<?= base_url("admin/news") ?>">News</a></li>
                         <li><a href="<?= base_url("admin/slides") ?>">Slides</a></li>
                         <li><a href="<?= base_url("admin/gallery") ?>">Gallery</a></li>
+                        <li><a href="<?= base_url("admin/about") ?>">About</a></li>
                         <li><a href="<?= base_url("logout") ?>">Logout</a></li>
                     </ul>
                 </nav>
@@ -36,6 +37,7 @@
                         <li class="<?= ($active === "news") ? "active" : "" ?>"><a href="<?= base_url("admin/news") ?>">News</a></li>
                         <li class="<?= ($active === "slides") ? "active" : "" ?>"><a href="<?= base_url("admin/slides") ?>">Slides</a></li>
                         <li class="<?= ($active === "gallery") ? "active" : "" ?>"><a href="<?= base_url("admin/gallery") ?>">Gallery</a></li>
+                        <li class="<?= ($active === "about") ? "active" : "" ?>"><a href="<?= base_url("admin/about") ?>">About</a></li>
                         <li><a href="<?= base_url("logout") ?>">Logout</a></li>
                     </ul>
                 </nav>

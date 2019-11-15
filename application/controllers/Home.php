@@ -16,6 +16,12 @@ class Home extends CI_Controller
 	{
 		$p["active"] = "about";
 		$p["title"] = "About Us";
+        $abt = $this->db->get("about",1)->row();
+        if ($abt !== null) {
+            $p["about"] = $abt;
+        }else {
+            $p['about'] = new about;
+        }
 		$this->load->view('home/about', $p);
 	}
 	public function gallery($gname = "")

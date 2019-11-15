@@ -1,6 +1,18 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
+class about
+{
+    public $school_name = "";
+    public $slogan = "";
+    public $address = "";
+    public $vision = "";
+    public $mission = "";
+    public $achievements = "";
+    public $about = "";
+    public $phone1 = "";
+    public $phone2 = "";
+}
 class Admin extends CI_Controller
 {
     public function __construct()
@@ -15,6 +27,55 @@ class Admin extends CI_Controller
         $p["active"] = "home";
         $p["title"] = "Admin Dashboard";
         $this->load->view('admin/index', $p);
+    }
+    public function about()
+    {
+        if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
+            $this->update_about();
+        }
+        $p['active'] = "about";
+        $p['title'] = "About";
+        $abt = $this->db->get("about",1)->row();
+        if ($abt !== null) {
+            $p["about"] = $abt;
+        }else {
+            $p['about'] = new about;
+        }
+        $this->load->view("admin/about", $p);
+    }
+    private function update_about()
+    {
+        $abt = $this->db->get("about", 1)->row();
+        $data = array(
+            "school_name" => trim($this->input->post('school_name')),
+            "slogan" => trim($this->input->post('slogan')),
+            "address" => trim($this->input->post('address')),
+            "vision" => trim($this->input->post('vision')),
+            "mission" => trim($this->input->post('mission')),
+            "achievements" => trim($this->input->post('achievements')),
+            "about" => trim($this->input->post('about')),
+            "phone1" => trim($this->input->post('phone1')),
+            "phone2" => trim($this->input->post('phone2'))
+        );
+        if ($abt !== null) {
+            $this->db->where("id", $abt->id);
+            $this->db->set($data);
+            if ($this->db->update("about")) {
+                $this->session->set_flashdata('success_msg', 'About us successfully updated.');
+                redirect("admin/about");
+            } else {
+                $this->session->set_flashdata('error_msg', "Error Updating About us");
+                redirect("admin/about");
+            };
+        } else {
+            if ($this->db->insert("about", $data)) {
+                $this->session->set_flashdata('success_msg', 'About us successfully added.');
+                redirect("admin/about");
+            } else {
+                $this->session->set_flashdata('error_msg', "Error adding About us");
+                redirect("admin/about");
+            };
+        }
     }
     public function news()
     {
@@ -116,7 +177,7 @@ class Admin extends CI_Controller
                     $this->session->set_flashdata('error_msg', "Error Updating Event Tag");
                     redirect("admin/gallery");
                 };
-            } else{
+            } else {
                 $data['tag_class'] = preg_replace("/[^\w-]/", "-", strtolower($tn));
                 if ($this->db->insert("gallery_tags", $data)) {
                     $this->session->set_flashdata('success_msg', 'Event tag successfully added.');
@@ -302,7 +363,7 @@ class Admin extends CI_Controller
             $config['upload_path'] = $path;
             $config['allowed_types'] = 'jpeg|gif|jpg|png';
             $config['max_width'] = 1024;
-            $config['max_height'] = 468;
+            $config['max_height'] = 1024;
             $config['file_name'] = $imagename;
             $this->load->library('upload', $config);
             if (!$this->upload->do_upload('image')) {
@@ -333,7 +394,7 @@ class Admin extends CI_Controller
             $config['upload_path'] = $path;
             $config['allowed_types'] = 'jpeg|gif|jpg|png';
             $config['max_width'] = 1024;
-            $config['max_height'] = 468;
+            $config['max_height'] = 1024;
             $config['file_name'] = $imagename;
             $this->load->library('upload', $config);
             if (!$this->upload->do_upload('image')) {

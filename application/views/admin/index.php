@@ -23,7 +23,7 @@
                     <a href="<?= base_url("admin/gallery") ?>"><i class="fa fa-clone fa-5x"></i><br /> <span class="sub-text">Gallery</span></a>
                 </div>
                 <div class="col-md-4">
-                    <a href="#"><i class="fa fa-cogs fa-5x"></i><br /> <span class="sub-text">Settings</span></a>
+                    <a href="<?= base_url("admin/about") ?>"><i class="fa fa-cogs fa-5x"></i><br /> <span class="sub-text">About</span></a>
                 </div>
                 <div class="col-md-4">
                     <a href="#"><i class="fa fa-user fa-5x"></i><br /> <span class="sub-text">User Profile</span></a>
