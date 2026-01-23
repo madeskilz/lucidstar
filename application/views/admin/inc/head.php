@@ -11,8 +11,15 @@
     <link rel="stylesheet" href="<?= base_url("assets/css/plugin.css") ?>" type="text/css" />
     <link rel="stylesheet" href="<?= base_url("assets/css/style.css") ?>" type="text/css" />
     <link rel="stylesheet" href="<?= base_url("assets/css/responsive.css") ?>" type="text/css" />
+    <link rel="stylesheet" href="<?= base_url("assets/css/admin.css") ?>" type="text/css" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <script type="text/javascript" src="<?= base_url("assets/js/jquery.js") ?>"></script>
+    <script>
+    // Local vendor fallback loader: prefer local vendor scripts if present
+    function loadLocalScript(path){
+        try{ var s = document.createElement('script'); s.src = path; document.head.appendChild(s); }catch(e){}
+    }
+    </script>
     <title><?= (isset($title)) ? $title : "Welcome Home" ?> | Lucid Stars Montessori </title>
     <!--[if gte IE 9]>
           <style type="text/css">

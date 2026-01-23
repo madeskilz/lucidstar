@@ -1,0 +1,6 @@
+/* Admin UI styles for nested menu editor */
+.nested-sortable .menu-item-row { padding:8px; border:1px solid #e0e0e0; background:#fff; margin-bottom:6px; }
+.nested-sortable .menu-item-row .drag-handle { cursor:move; display:inline-block; width:22px; text-align:center; color:#666; }
+.ns-placeholder { background:#f0f8ff; border:1px dashed #9ec9ff; height:40px; margin-bottom:6px; }
+.header-ctas a { margin-left:8px; }
+.admin-flash a { color:#fff; text-decoration:underline; }

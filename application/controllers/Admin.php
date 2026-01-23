@@ -296,11 +296,15 @@ class Admin extends CI_Controller
         $this->db->where("id", $id);
         $img = $this->db->get("gallery", 1)->row();
         if ($img == null) {
-            $this->session->set_flashdata('error_msg', "Image not found");
-            return redirect("admin/gallery");
-        } else {
-            $this->db->where("id", $id);
-            $this->db->delete("gallery");
+        $items = $this->db->where('menu_id',$id)->get('menu_items')->result();
+        // push deleted menu and items into session stack (max 5 entries)
+        $stack = $this->session->userdata('deleted_menus'); if (!$stack || !is_array($stack)) $stack = array();
+        array_unshift($stack, ['menu'=>(array)$menu,'items'=>array_map(function($i){return (array)$i;}, $items)]);
+        $stack = array_slice($stack,0,5);
+        $this->session->set_userdata('deleted_menus', $stack);
+        $this->db->where('menu_id',$id)->delete('menu_items');
+        $this->db->where('id',$id)->delete('menus');
+        $this->session->set_flashdata('success_msg','Menu removed. <a href="'.base_url('admin/restore_menu').'">Undo</a>');
             $this->session->set_flashdata('success_msg', "Image deleted successfully");
             return redirect("admin/gallery");
         }
@@ -389,6 +393,229 @@ class Admin extends CI_Controller
         $p["title"] = "Homepage Slides";
         $p["slides"] = $this->db->get("slides")->result();
         $this->load->view('admin/slides', $p);
+    }
+
+    /**
+     * Menus management
+     */
+    public function menus()
+    {
+        $p['active'] = 'menus';
+        $p['title'] = 'Menus';
+        $p['menus'] = $this->db->get('menus')->result();
+        $this->load->view('admin/menus', $p);
+    }
+
+    public function add_menu()
+    {
+        if (strtolower($_SERVER['REQUEST_METHOD']) != 'post') return redirect('admin/menus');
+        $name = trim($this->input->post('menu_name'));
+        $label = trim($this->input->post('label'));
+        if ($name == '') {
+            $this->session->set_flashdata('error_msg','Menu name required');
+            return redirect('admin/menus');
+        }
+        $this->db->insert('menus', ['menu_name'=>$name,'label'=>$label]);
+        $this->session->set_flashdata('success_msg','Menu created');
+        return redirect('admin/menus');
+    }
+
+    public function edit_menu($id)
+    {
+        $this->db->where('id',$id);
+        $menu = $this->db->get('menus',1)->row();
+        if (!$menu) { $this->session->set_flashdata('error_msg','Menu not found'); return redirect('admin/menus'); }
+        $p['menu'] = $menu;
+        $p['items'] = $this->db->where('menu_id',$id)->order_by('sort_order','ASC')->get('menu_items')->result();
+        $this->load->view('admin/edit-menu', $p);
+    }
+
+    public function remove_menu($id)
+    {
+        $this->db->where('id',$id);
+        $menu = $this->db->get('menus',1)->row();
+        if (!$menu) { $this->session->set_flashdata('error_msg','Menu not found'); return redirect('admin/menus'); }
+        $this->db->where('id',$id)->delete('menus');
+        // remove items
+        $items = $this->db->where('menu_id',$id)->get('menu_items')->result();
+        // store for undo
+        $this->session->set_userdata('last_deleted_menu', ['menu'=>(array)$menu,'items'=>array_map(function($i){return (array)$i;}, $items)]);
+        $this->db->where('menu_id',$id)->delete('menu_items');
+        $this->session->set_flashdata('success_msg','Menu removed. <a href="'.base_url('admin/restore_menu').'">Undo</a>');
+        return redirect('admin/menus');
+    }
+
+    public function restore_menu()
+    {
+        $stack = $this->session->userdata('deleted_menus');
+        if (!$stack || !is_array($stack) || count($stack) == 0) { $this->session->set_flashdata('error_msg','Nothing to restore'); return redirect('admin/menus'); }
+        $data = array_shift($stack);
+        $this->session->set_userdata('deleted_menus', $stack);
+        $menu = $data['menu'];
+        if (isset($menu['id'])) unset($menu['id']);
+        $this->db->insert('menus', $menu);
+        $new_menu_id = $this->db->insert_id();
+        if (!empty($data['items'])) {
+            foreach ($data['items'] as $it) {
+                if (isset($it['id'])) unset($it['id']);
+                $it['menu_id'] = $new_menu_id;
+                $this->db->insert('menu_items',$it);
+            }
+        }
+        $this->session->set_flashdata('success_msg','Menu restored');
+        return redirect('admin/menus');
+    }
+
+    public function menu_item_save()
+    {
+        if (strtolower($_SERVER['REQUEST_METHOD']) != 'post') return redirect('admin/menus');
+        $menu_id = intval($this->input->post('menu_id'));
+        $title = trim($this->input->post('title'));
+        $url = trim($this->input->post('url'));
+        $parent_id = intval($this->input->post('parent_id'));
+        $sort_order = intval($this->input->post('sort_order'));
+        if ($title == '' || $url == '') { $this->session->set_flashdata('error_msg','Title and URL required'); return redirect('admin/edit_menu/'.$menu_id); }
+        $this->db->insert('menu_items', ['menu_id'=>$menu_id,'title'=>$title,'url'=>$url,'parent_id'=>$parent_id,'sort_order'=>$sort_order]);
+        $this->session->set_flashdata('success_msg','Menu item added');
+        return redirect('admin/edit_menu/'.$menu_id);
+    }
+
+    public function remove_menu_item($id)
+    {
+        $this->db->where('id',$id);
+        $it = $this->db->get('menu_items',1)->row();
+        if (!$it) { $this->session->set_flashdata('error_msg','Menu item not found'); return redirect('admin/menus'); }
+        $menu_id = $it->menu_id;
+        // push deleted row into session stack for undo (keep last 10)
+        $stack = $this->session->userdata('deleted_menu_items');
+        if (!$stack || !is_array($stack)) $stack = array();
+        array_unshift($stack, (array)$it);
+        $stack = array_slice($stack, 0, 10);
+        $this->session->set_userdata('deleted_menu_items', $stack);
+        $this->db->where('id',$id)->delete('menu_items');
+        $undo_link = base_url('admin/restore_menu_item');
+        $this->session->set_flashdata('success_msg','Menu item removed. <a href="'.$undo_link.'">Undo</a>');
+        return redirect('admin/edit_menu/'.$menu_id);
+    }
+
+    public function save_menu_order($menu_id)
+    {
+        if (strtolower($_SERVER['REQUEST_METHOD']) != 'post') return redirect('admin/menus');
+        $order_raw = $this->input->post('order');
+        if (!$order_raw) { $this->output->set_status_header(400); echo 'no order'; return; }
+        $items = json_decode($order_raw, true);
+        if (!is_array($items)) { $this->output->set_status_header(400); echo 'invalid'; return; }
+        // items is expected as array of {id,parent_id,depth,order}
+        // We'll update parent_id and sort_order based on the order in the array
+        $orders = array();
+        foreach ($items as $it) {
+            $id = intval($it['id']);
+            $parent = intval($it['parent_id']);
+            if (!isset($orders[$parent])) $orders[$parent] = 0;
+            $sort = $orders[$parent]++;
+            $this->db->where('id',$id)->set(['parent_id'=>$parent,'sort_order'=>$sort])->update('menu_items');
+        }
+        echo 'ok';
+    }
+
+    public function restore_menu_item()
+    {
+        $stack = $this->session->userdata('deleted_menu_items');
+        if (!$stack || !is_array($stack) || count($stack) == 0) { $this->session->set_flashdata('error_msg','Nothing to restore'); return redirect('admin/menus'); }
+        $data = array_shift($stack);
+        $this->session->set_userdata('deleted_menu_items', $stack);
+        if (isset($data['id'])) unset($data['id']);
+        $this->db->insert('menu_items', $data);
+        $this->session->set_flashdata('success_msg','Menu item restored');
+        return redirect('admin/menus');
+    }
+
+    /**
+     * Media management (upload/list/delete)
+     */
+    public function media()
+    {
+        $p['active'] = 'media';
+        $p['title'] = 'Media Library';
+        $p['media'] = $this->db->order_by('date_uploaded','DESC')->get('media')->result();
+        $this->load->view('admin/media', $p);
+    }
+
+    public function add_media()
+    {
+        if (strtolower($_SERVER['REQUEST_METHOD']) != 'post') return redirect('admin/media');
+        if (!isset($_FILES) || !isset($_FILES['file']) || $_FILES['file']['name']=='') { $this->session->set_flashdata('error_msg','No file'); return redirect('admin/media'); }
+        $imagePrefix = time();
+        $imagename = $imagePrefix . $_FILES['file']['name'];
+        $path = './sitefiles/media/';
+        if (!is_dir($path)) @mkdir($path,0755,true);
+        $config['upload_path'] = $path;
+        $config['allowed_types'] = 'jpeg|gif|jpg|png|svg|webp';
+        $config['file_name'] = $imagename;
+        $this->load->library('upload', $config);
+        if (!$this->upload->do_upload('file')) {
+            $this->session->set_flashdata('error_msg', $this->upload->display_errors());
+            return redirect('admin/media');
+        }
+        $ud = $this->upload->data();
+        $file_url = base_url('sitefiles/media/'.$ud['file_name']);
+        $alt = trim($this->input->post('alt'));
+        $caption = trim($this->input->post('caption'));
+        $this->db->insert('media', ['file'=>$file_url,'type'=>$ud['file_type'],'alt'=>$alt,'caption'=>$caption]);
+        $this->session->set_flashdata('success_msg','Media uploaded');
+        return redirect('admin/media');
+    }
+
+    public function remove_media($id)
+    {
+        $this->db->where('id',$id);
+        $m = $this->db->get('media',1)->row();
+        if (!$m) { $this->session->set_flashdata('error_msg','Media not found'); return redirect('admin/media'); }
+        // attempt to unlink file (if it's under sitefiles/media)
+        $u = $m->file;
+        $local = null;
+        if (strpos($u, 'sitefiles/media/') !== false) {
+            $parts = explode('sitefiles/media/', $u);
+            $local = './sitefiles/media/'.end($parts);
+        }
+        if ($local && file_exists($local)) @unlink($local);
+        $this->db->where('id',$id)->delete('media');
+        $this->session->set_flashdata('success_msg','Media removed');
+        return redirect('admin/media');
+    }
+
+    /**
+     * CTAs management
+     */
+    public function ctas()
+    {
+        $p['active'] = 'ctas';
+        $p['title'] = 'CTAs';
+        $p['ctas'] = $this->db->order_by('sort_order','ASC')->get('ctas')->result();
+        $this->load->view('admin/ctas', $p);
+    }
+
+    public function add_cta()
+    {
+        if (strtolower($_SERVER['REQUEST_METHOD']) != 'post') return redirect('admin/ctas');
+        $label = trim($this->input->post('label'));
+        $url = trim($this->input->post('url'));
+        $style = trim($this->input->post('style'));
+        $sort_order = intval($this->input->post('sort_order'));
+        if ($label == '' || $url == '') { $this->session->set_flashdata('error_msg','Label & URL required'); return redirect('admin/ctas'); }
+        $this->db->insert('ctas',['label'=>$label,'url'=>$url,'style'=>$style,'sort_order'=>$sort_order]);
+        $this->session->set_flashdata('success_msg','CTA added');
+        return redirect('admin/ctas');
+    }
+
+    public function remove_cta($id)
+    {
+        $this->db->where('id',$id);
+        $c = $this->db->get('ctas',1)->row();
+        if (!$c) { $this->session->set_flashdata('error_msg','CTA not found'); return redirect('admin/ctas'); }
+        $this->db->where('id',$id)->delete('ctas');
+        $this->session->set_flashdata('success_msg','CTA removed');
+        return redirect('admin/ctas');
     }
     public function add_slide()
     {

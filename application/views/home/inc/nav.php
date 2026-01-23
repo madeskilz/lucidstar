@@ -73,6 +73,18 @@
                         <li><a target="_blank" href="http://portal.lucidstars.sch.ng">Portal</a></li>
                     </ul>
                     <?php } ?>
+                    <?php
+                    // Render CTAs (e.g., header buttons)
+                    $ctas = get_ctas();
+                    if (!empty($ctas)) {
+                        echo '<div class="header-ctas">';
+                        foreach ($ctas as $c) {
+                            $cls = ($c['style']) ? htmlspecialchars($c['style']) : 'button-normal';
+                            echo '<a class="'. $cls .'" href="'.htmlspecialchars($c['url']).'">'.htmlspecialchars($c['label']).'</a> ';
+                        }
+                        echo '</div>';
+                    }
+                    ?>
                 </nav>
             </div>
         </div>

@@ -76,3 +76,35 @@ if (!function_exists('menu_render')) {
         return $html;
     }
 }
+
+    if (!function_exists('get_ctas')) {
+        /**
+         * Returns ordered CTAs from `ctas` table as array
+         */
+        function get_ctas()
+        {
+            $ci = &get_instance();
+            if (!isset($ci->db)) return array();
+            if (method_exists($ci->db, 'table_exists') && !$ci->db->table_exists('ctas')) return array();
+            $rows = $ci->db->order_by('sort_order','ASC')->get('ctas')->result();
+            $out = array();
+            foreach ($rows as $r) {
+                $out[] = array('label'=>$r->label,'url'=>$r->url,'style'=>$r->style,'id'=>$r->id);
+            }
+            return $out;
+        }
+    }
+
+    if (!function_exists('get_media')) {
+        /**
+         * Return media record by id or all media when id is null
+         */
+        function get_media($id = null)
+        {
+            $ci = &get_instance();
+            if (!isset($ci->db)) return array();
+            if (method_exists($ci->db, 'table_exists') && !$ci->db->table_exists('media')) return array();
+            if ($id === null) return $ci->db->order_by('date_uploaded','DESC')->get('media')->result();
+            return $ci->db->where('id',$id)->get('media',1)->row();
+        }
+    }
