@@ -26,7 +26,63 @@ class Admin extends CI_Controller
     {
         $p["active"] = "home";
         $p["title"] = "Admin Dashboard";
+
+        // try cached counts first (TTL seconds)
+        $ttl = 30; // seconds
+        $p['counts'] = $this->get_dashboard_counts($ttl);
+
+        // recent activity: latest 5 news and media (only if tables exist)
+        $p['recent_news'] = array();
+        $p['recent_media'] = array();
+        if ($this->db->table_exists('news')) {
+            $p['recent_news'] = $this->db->order_by('published', 'DESC')->limit(5)->get('news')->result();
+        }
+        if ($this->db->table_exists('media')) {
+            $p['recent_media'] = $this->db->order_by('date_uploaded', 'DESC')->limit(5)->get('media')->result();
+        }
+
         $this->load->view('admin/index', $p);
+    }
+
+    /**
+     * Simple file-based cache for dashboard counts to reduce DB queries.
+     * Returns associative array of counts.
+     */
+    private function get_dashboard_counts($ttl = 30)
+    {
+        $cache_file = APPPATH . 'cache/dashboard_counts.json';
+        if (file_exists($cache_file)) {
+            $meta = @stat($cache_file);
+            if ($meta && (time() - $meta['mtime'] < $ttl)) {
+                $data = @file_get_contents($cache_file);
+                $arr = @json_decode($data, true);
+                if (is_array($arr)) return $arr;
+            }
+        }
+
+        // compute counts (check table existence to avoid DB errors)
+        $tables = ['news','slides','gallery','menus','menu_items','media','ctas','settings'];
+        $counts = [];
+        foreach ($tables as $t) {
+            if ($t === 'settings') {
+                // settings uses a where-count_all_results
+                if ($this->db->table_exists('settings')) {
+                    $counts['settings'] = (int)$this->db->where('skey IS NOT NULL', null, false)->count_all_results('settings');
+                } else {
+                    $counts['settings'] = 0;
+                }
+                continue;
+            }
+            if ($this->db->table_exists($t)) {
+                $counts[$t] = (int)$this->db->count_all($t);
+            } else {
+                $counts[$t] = 0;
+            }
+        }
+
+        // write cache (best-effort)
+        @file_put_contents($cache_file, json_encode($counts));
+        return $counts;
     }
     /**
      * Site settings editor — supports logo upload and common site options.
@@ -101,6 +157,7 @@ class Admin extends CI_Controller
         }
 
         $this->session->set_flashdata('success_msg', 'Settings saved.');
+        $this->clear_dashboard_cache();
         return redirect('admin/settings');
     }
     public function about()
@@ -175,6 +232,7 @@ class Admin extends CI_Controller
         $data['details'] = trim($this->input->post('details'));
         if ($this->db->insert("news", $data)) {
             $this->session->set_flashdata('success_msg', "News update added successfully");
+            $this->clear_dashboard_cache();
             return redirect("admin/news");
         } else {
             $this->session->set_flashdata('error_msg', "News update not added contact admin if error persists");
@@ -206,6 +264,7 @@ class Admin extends CI_Controller
         } else {
             $this->db->where("id", $id);
             $this->db->delete("news");
+            $this->clear_dashboard_cache();
             $this->session->set_flashdata('success_msg', "News deleted successfully");
             return redirect("admin/news");
         }
@@ -219,6 +278,7 @@ class Admin extends CI_Controller
         $this->db->set($data);
         if ($this->db->update("news", $data)) {
             $this->session->set_flashdata('success_msg', "News updated successfully");
+            $this->clear_dashboard_cache();
             return redirect("admin/news");
         } else {
             $this->session->set_flashdata('error_msg', "News not updated contact admin if error persists");
@@ -347,6 +407,7 @@ class Admin extends CI_Controller
         $data['image'] = $upload_data['file_name'];
         if ($this->db->insert("gallery", $data)) {
             $this->session->set_flashdata('success_msg', 'Image successfully added.');
+            $this->clear_dashboard_cache();
             redirect("admin/gallery");
         } else {
             $this->session->set_flashdata('error_msg', "Error Saving Image");
@@ -381,6 +442,7 @@ class Admin extends CI_Controller
         $this->db->set($data);
         if ($this->db->update("gallery")) {
             $this->session->set_flashdata('success_msg', 'Image successfully updated.');
+            $this->clear_dashboard_cache();
             redirect("admin/gallery");
         } else {
             $this->session->set_flashdata('error_msg', "Error updating image");
@@ -417,6 +479,7 @@ class Admin extends CI_Controller
         }
         $this->db->insert('menus', ['menu_name'=>$name,'label'=>$label]);
         $this->session->set_flashdata('success_msg','Menu created');
+        $this->clear_dashboard_cache();
         return redirect('admin/menus');
     }
 
@@ -441,6 +504,7 @@ class Admin extends CI_Controller
         // store for undo
         $this->session->set_userdata('last_deleted_menu', ['menu'=>(array)$menu,'items'=>array_map(function($i){return (array)$i;}, $items)]);
         $this->db->where('menu_id',$id)->delete('menu_items');
+        $this->clear_dashboard_cache();
         $this->session->set_flashdata('success_msg','Menu removed. <a href="'.base_url('admin/restore_menu').'">Undo</a>');
         return redirect('admin/menus');
     }
@@ -477,6 +541,7 @@ class Admin extends CI_Controller
         if ($title == '' || $url == '') { $this->session->set_flashdata('error_msg','Title and URL required'); return redirect('admin/edit_menu/'.$menu_id); }
         $this->db->insert('menu_items', ['menu_id'=>$menu_id,'title'=>$title,'url'=>$url,'parent_id'=>$parent_id,'sort_order'=>$sort_order]);
         $this->session->set_flashdata('success_msg','Menu item added');
+        $this->clear_dashboard_cache();
         return redirect('admin/edit_menu/'.$menu_id);
     }
 
@@ -493,6 +558,7 @@ class Admin extends CI_Controller
         $stack = array_slice($stack, 0, 10);
         $this->session->set_userdata('deleted_menu_items', $stack);
         $this->db->where('id',$id)->delete('menu_items');
+        $this->clear_dashboard_cache();
         $undo_link = base_url('admin/restore_menu_item');
         $this->session->set_flashdata('success_msg','Menu item removed. <a href="'.$undo_link.'">Undo</a>');
         return redirect('admin/edit_menu/'.$menu_id);
@@ -515,6 +581,8 @@ class Admin extends CI_Controller
             $sort = $orders[$parent]++;
             $this->db->where('id',$id)->set(['parent_id'=>$parent,'sort_order'=>$sort])->update('menu_items');
         }
+        // update complete, clear cache so dashboard reflects new order
+        $this->clear_dashboard_cache();
         echo 'ok';
     }
 
@@ -563,6 +631,7 @@ class Admin extends CI_Controller
         $caption = trim($this->input->post('caption'));
         $this->db->insert('media', ['file'=>$file_url,'type'=>$ud['file_type'],'alt'=>$alt,'caption'=>$caption]);
         $this->session->set_flashdata('success_msg','Media uploaded');
+        $this->clear_dashboard_cache();
         return redirect('admin/media');
     }
 
@@ -580,6 +649,7 @@ class Admin extends CI_Controller
         }
         if ($local && file_exists($local)) @unlink($local);
         $this->db->where('id',$id)->delete('media');
+        $this->clear_dashboard_cache();
         $this->session->set_flashdata('success_msg','Media removed');
         return redirect('admin/media');
     }
@@ -605,6 +675,7 @@ class Admin extends CI_Controller
         if ($label == '' || $url == '') { $this->session->set_flashdata('error_msg','Label & URL required'); return redirect('admin/ctas'); }
         $this->db->insert('ctas',['label'=>$label,'url'=>$url,'style'=>$style,'sort_order'=>$sort_order]);
         $this->session->set_flashdata('success_msg','CTA added');
+        $this->clear_dashboard_cache();
         return redirect('admin/ctas');
     }
 
@@ -614,6 +685,7 @@ class Admin extends CI_Controller
         $c = $this->db->get('ctas',1)->row();
         if (!$c) { $this->session->set_flashdata('error_msg','CTA not found'); return redirect('admin/ctas'); }
         $this->db->where('id',$id)->delete('ctas');
+        $this->clear_dashboard_cache();
         $this->session->set_flashdata('success_msg','CTA removed');
         return redirect('admin/ctas');
     }
@@ -651,6 +723,7 @@ class Admin extends CI_Controller
         } else {
             $this->db->where("id", $id);
             $this->db->delete("slides");
+            $this->clear_dashboard_cache();
             $this->session->set_flashdata('success_msg', "Slide deleted successfully");
             return redirect("admin/slides");
         }
@@ -680,6 +753,7 @@ class Admin extends CI_Controller
         $data['image'] = $upload_data['file_name'];
         if ($this->db->insert("slides", $data)) {
             $this->session->set_flashdata('success_msg', 'Slide successfully added.');
+            $this->clear_dashboard_cache();
             redirect("admin/slides");
         } else {
             $this->session->set_flashdata('error_msg', "Error Saving Slide");
@@ -715,10 +789,20 @@ class Admin extends CI_Controller
         $this->db->set($data);
         if ($this->db->update("slides")) {
             $this->session->set_flashdata('success_msg', 'Slide successfully updated.');
+            $this->clear_dashboard_cache();
             redirect("admin/slides");
         } else {
             $this->session->set_flashdata('error_msg', "Error updating slide");
             redirect("admin/edit_slide");
         };
+    }
+
+    /**
+     * Clear the dashboard counts cache file if present.
+     */
+    private function clear_dashboard_cache()
+    {
+        $cache_file = APPPATH . 'cache/dashboard_counts.json';
+        if (file_exists($cache_file)) @unlink($cache_file);
     }
 }

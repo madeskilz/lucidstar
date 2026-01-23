@@ -4,3 +4,13 @@
 .ns-placeholder { background:#f0f8ff; border:1px dashed #9ec9ff; height:40px; margin-bottom:6px; }
 .header-ctas a { margin-left:8px; }
 .admin-flash a { color:#fff; text-decoration:underline; }
+
+/* Dashboard cards */
+.dash-card { background: #fff; border: 1px solid #e6e6e6; padding: 18px 12px; border-radius:6px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+.dash-card i { color: #333; margin-bottom:8px; }
+.dash-card h4 { margin-top:8px; margin-bottom:6px; font-size:16px; }
+.dash-card p.muted { color:#777; margin:0; font-size:13px; }
+ .dash-actions { margin-top:10px; }
+ .dash-actions .btn { margin-right:6px; }
+ .recent-activity-list li { padding:6px 0; border-bottom:1px dashed #eee; }
+ .recent-activity-list li:last-child { border-bottom:none; }
