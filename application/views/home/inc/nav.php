@@ -2,8 +2,10 @@
     <div class="container">
         <div class="row">
             <div class="logo col-md-2">
-                <a href="<?= base_url() ?>" style="display:inline-flex;width:225px"><img src="<?= base_url("assets/img/logo-black.png") ?>" style="height:50px;width:auto;" alt="Kindergarten Logo" />
-                    <span class="logo-text">Lucid Stars</span></a>
+                <?php $logo_path = site_option('logo_path', base_url("assets/img/logo-black.png")); ?>
+                <?php $site_name = site_option('site_name', 'Lucid Stars'); ?>
+                <a href="<?= base_url() ?>" style="display:inline-flex;width:225px"><img src="<?= $logo_path ?>" style="height:50px;width:auto;" alt="<?= htmlspecialchars($site_name) ?> Logo" />
+                    <span class="logo-text"><?= htmlspecialchars($site_name) ?></span></a>
                 <div class="mobile-menu">
                     <button id="slide-buttons" class="icon icon-navicon-round"></button>
                 </div>
@@ -21,6 +23,13 @@
                     <button class="c-menu__close icon icon-remove-delete"></button>
                     <div class="logo-menu-right text-center">
                     </div>
+                    <?php
+                    // Try to load a DB-driven menu; fallback to the hard-coded menu
+                    $mobile_menu = get_menu('primary');
+                    if (!empty($mobile_menu)) {
+                        echo '<ul class="menus-mobile">' . menu_render($mobile_menu) . '</ul>';
+                    } else {
+                    ?>
                     <ul class="menus-mobile">
                         <li><a href="<?= base_url() ?>">Home</a></li>
                         <li><a href="<?= base_url("about") ?>">About</a></li>
@@ -37,9 +46,16 @@
                         <li><a href="<?= base_url("login") ?>">CMS</a></li>
                         <li><a target="_blank" href="http://portal.lucidstars.sch.ng">Portal</a></li>
                     </ul>
+                    <?php } ?>
                 </nav>
                 <div id="slide-overlay" class="slide-overlay"></div>
                 <nav id="main-menu" class="menu">
+                    <?php
+                    $main_menu = get_menu('primary');
+                    if (!empty($main_menu)) {
+                        echo '<ul id="menu-top-menu" class="menus">' . menu_render($main_menu) . '</ul>';
+                    } else {
+                    ?>
                     <ul id="menu-top-menu" class="menus">
                         <li class="<?= ($active === "home") ? "active" : "" ?>"><a href="<?= base_url() ?>">Home</a></li>
                         <li class="<?= ($active === "about") ? "active" : "" ?>"><a href="<?= base_url("about") ?>">About</a></li>
@@ -56,6 +72,7 @@
                         <li class="<?= ($active === "login") ? "active" : "" ?>"><a href="<?= base_url("login") ?>">CMS</a></li>
                         <li><a target="_blank" href="http://portal.lucidstars.sch.ng">Portal</a></li>
                     </ul>
+                    <?php } ?>
                 </nav>
             </div>
         </div>

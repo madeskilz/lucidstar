@@ -28,6 +28,81 @@ class Admin extends CI_Controller
         $p["title"] = "Admin Dashboard";
         $this->load->view('admin/index', $p);
     }
+    /**
+     * Site settings editor — supports logo upload and common site options.
+     */
+    public function settings()
+    {
+        if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
+            $this->update_settings();
+        }
+        $p['active'] = "settings";
+        $p['title'] = "Site Settings";
+        // load current values from `settings` table (safe defaults)
+        $p['site_name'] = $this->db->where('skey','site_name')->get('settings',1)->row();
+        $p['logo_path'] = $this->db->where('skey','logo_path')->get('settings',1)->row();
+        $p['short_description'] = $this->db->where('skey','short_description')->get('settings',1)->row();
+        $p['address'] = $this->db->where('skey','address')->get('settings',1)->row();
+        $p['phone1'] = $this->db->where('skey','phone1')->get('settings',1)->row();
+        $p['phone2'] = $this->db->where('skey','phone2')->get('settings',1)->row();
+        $p['email'] = $this->db->where('skey','email')->get('settings',1)->row();
+        $p['staff_email_url'] = $this->db->where('skey','staff_email_url')->get('settings',1)->row();
+        $p['social_facebook'] = $this->db->where('skey','social_facebook')->get('settings',1)->row();
+        $p['social_twitter'] = $this->db->where('skey','social_twitter')->get('settings',1)->row();
+        $p['social_instagram'] = $this->db->where('skey','social_instagram')->get('settings',1)->row();
+        // unwrap rows if present
+        foreach (['site_name','logo_path','short_description','address','phone1','phone2','email','staff_email_url','social_facebook','social_twitter','social_instagram'] as $k) {
+            if (isset($p[$k]) && is_object($p[$k])) $p[$k] = $p[$k]->svalue; else if (!isset($p[$k])) $p[$k] = '';
+        }
+        $this->load->view('admin/settings', $p);
+    }
+
+    private function update_settings()
+    {
+        // keys we'll accept from the form
+        $keys = ['site_name','short_description','address','phone1','phone2','email','staff_email_url','social_facebook','social_twitter','social_instagram'];
+        // handle logo upload
+        if (isset($_FILES) && isset($_FILES['logo']) && $_FILES['logo']['name'] != '') {
+            $imagePrefix = time();
+            $imagename = $imagePrefix . $_FILES['logo']['name'];
+            $path = './sitefiles/media/';
+            if (!is_dir($path)) @mkdir($path, 0755, true);
+            $config['upload_path'] = $path;
+            $config['allowed_types'] = 'jpeg|gif|jpg|png|svg';
+            $config['file_name'] = $imagename;
+            $this->load->library('upload', $config);
+            if (!$this->upload->do_upload('logo')) {
+                $this->session->set_flashdata('error_msg', $this->upload->display_errors());
+                return redirect('admin/settings');
+            } else {
+                $upload_data = $this->upload->data();
+                // store full URL for convenience in views
+                $logo_url = base_url("sitefiles/media/" . $upload_data['file_name']);
+                $this->db->where('skey','logo_path');
+                $exists = $this->db->get('settings',1)->row();
+                if ($exists) {
+                    $this->db->where('skey','logo_path')->set('svalue',$logo_url)->update('settings');
+                } else {
+                    $this->db->insert('settings', ['skey'=>'logo_path','svalue'=>$logo_url]);
+                }
+            }
+        }
+
+        // save other keys
+        foreach ($keys as $k) {
+            $v = trim($this->input->post($k));
+            $this->db->where('skey',$k);
+            $exists = $this->db->get('settings',1)->row();
+            if ($exists) {
+                $this->db->where('skey',$k)->set('svalue',$v)->update('settings');
+            } else {
+                $this->db->insert('settings', ['skey'=>$k,'svalue'=>$v]);
+            }
+        }
+
+        $this->session->set_flashdata('success_msg', 'Settings saved.');
+        return redirect('admin/settings');
+    }
     public function about()
     {
         if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
