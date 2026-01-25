@@ -21,9 +21,8 @@
                         </div>
                         <div class="contact-content">
                             <h3>Visit us</h3>
-							<p>6, Akinwale Street,</p>
-							<p>Ogba, Ikeja,</p>
-							<p>Lagos State, Nigeria.</p> 
+                            <?php $addr = site_option('address', "6, Akinwale Street,\n\nOgba, Ikeja,\n\nLagos State, Nigeria."); ?>
+                            <?= nl2br(htmlspecialchars($addr)) ?>
                         </div>
                     </div>
 
@@ -33,8 +32,10 @@
                         </div>
                         <div class="contact-content">
                             <h3>Contact us</h3>
-							<p>08023148981 | 08033160691</p>
-							<p><a href="mailto:info@lucidstars.sch.ng">info@lucidstars.sch.ng</a></p>
+                            <?php $p1 = site_option('phone1', '08023148981'); $p2 = site_option('phone2', '08033160691'); ?>
+                            <p><?= htmlspecialchars($p1) ?><?php if ($p2) { echo ' | ' . htmlspecialchars($p2); } ?></p>
+                            <?php $email = site_option('email', 'info@lucidstars.sch.ng'); ?>
+                            <p><a href="mailto:<?= htmlspecialchars($email) ?>"><?= htmlspecialchars($email) ?></a></p>
                         </div>
                     </div>
                 </div>

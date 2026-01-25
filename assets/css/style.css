@@ -309,6 +309,15 @@ form input:focus, form textarea:focus {
  #header .logo {
     margin-top: 30px;
 }
+#header .logo a .logo-text {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+    margin-left: 10px;
+    vertical-align: middle;
+}
 #header.fixedwrap .logo {
     margin-top: 5px;
 }

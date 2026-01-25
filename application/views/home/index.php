@@ -4,7 +4,9 @@
 	<div class="banner large text-center wow fadeInUp">
 		<div class="container">
 			<div class="row">
-				<h1 class="no-margin">Welcome to <span class="yellow-text">Lucid Stars</span> Private School</h1>
+				<?php $site = site_option('site_name', 'Lucid Stars'); ?>
+				<?php $hero = site_option('hero_heading', 'Welcome to ' . $site); ?>
+				<h1 class="no-margin"><?= htmlspecialchars($hero) ?></h1>
 			</div>
 		</div>
 	</div>
@@ -16,7 +18,7 @@
 						<h2>Welcome</h2>
 					</div>
 					<p class="text-justify">
-						We are so happy to welcome you all. We appreciate you all, for coming to our school - Lucid Stars Private School. It is an absolute pleasure to see new faces in our school, as well as meet our old pupils and parents who we have built a close relationship with on every of our child’s educational journey. So thank you everyone, for being a part of the Lucid Stars Family, we are grateful.
+						<?= nl2br(htmlspecialchars(site_option('hero_subtext', site_option('short_description', "We are so happy to welcome you all.")))) ?>
 					</p>
 					<div class="button-normal green">
 						<a href="<?= base_url("about") ?>">About Us</a>

@@ -18,13 +18,7 @@ class Admin extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-        // In development, ensure we have an admin session so automated tests and
-        // local debugging can exercise admin routes without manual login.
-        if (defined('ENVIRONMENT') && ENVIRONMENT === 'development') {
-            if (!$this->session->userdata('logged_in')) $this->session->set_userdata('logged_in', true);
-            if ($this->session->userdata('level') != '1') $this->session->set_userdata('level', '1');
-        }
-
+        // Require an authenticated admin session for all Admin routes.
         if (!$this->session->userdata("logged_in") || $this->session->userdata("level") != "1") {
             redirect(base_url("login"));
         }
@@ -101,8 +95,13 @@ class Admin extends CI_Controller
         }
         $p['active'] = "settings";
         $p['title'] = "Site Settings";
-        // load current values from `settings` table (safe defaults)
-        $keys = ['site_name', 'logo_path', 'short_description', 'address', 'phone1', 'phone2', 'email', 'staff_email_url', 'social_facebook', 'social_twitter', 'social_instagram'];
+        // load current values from `settings` table (safe defaults) — include hero and stats
+        $keys = [
+            'site_name', 'logo_path', 'short_description', 'hero_heading', 'hero_subtext',
+            'stat_staff','stat_students','stat_classes','stat_labs',
+            'address', 'phone1', 'phone2', 'email', 'staff_email_url',
+            'social_facebook', 'social_twitter', 'social_instagram'
+        ];
         if ($this->db->table_exists('settings')) {
             foreach ($keys as $k) {
                 $row = $this->db->where('skey', $k)->get('settings', 1)->row();
@@ -116,8 +115,13 @@ class Admin extends CI_Controller
 
     private function update_settings()
     {
-        // keys we'll accept from the form
-        $keys = ['site_name','short_description','address','phone1','phone2','email','staff_email_url','social_facebook','social_twitter','social_instagram'];
+        // keys we'll accept from the form (add hero and stats keys)
+        $keys = [
+            'site_name','short_description','hero_heading','hero_subtext',
+            'stat_staff','stat_students','stat_classes','stat_labs',
+            'address','phone1','phone2','email','staff_email_url',
+            'social_facebook','social_twitter','social_instagram'
+        ];
         // handle logo upload
         if (isset($_FILES) && isset($_FILES['logo']) && $_FILES['logo']['name'] != '') {
             $imagePrefix = time();
