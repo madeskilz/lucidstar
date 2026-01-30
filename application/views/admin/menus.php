@@ -10,30 +10,40 @@
 
     <div class="row">
         <div class="col-md-6">
-            <h4>Create Menu</h4>
-            <form method="post" action="<?= base_url('admin/add_menu') ?>">
-                <div class="form-group">
-                    <label>Menu Name (internal)</label>
-                    <input type="text" name="menu_name" class="form-control" />
+            <div class="dash-card">
+                <div class="content">
+                    <h4>Create Menu</h4>
+                    <form method="post" action="<?= base_url('admin/add_menu') ?>">
+                        <div class="form-group">
+                            <label>Menu Name (internal)</label>
+                            <input type="text" name="menu_name" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>Label (display)</label>
+                            <input type="text" name="label" class="form-control" />
+                        </div>
+                        <button class="btn btn-primary">Create</button>
+                    </form>
                 </div>
-                <div class="form-group">
-                    <label>Label (display)</label>
-                    <input type="text" name="label" class="form-control" />
-                </div>
-                <button class="btn btn-primary">Create</button>
-            </form>
+            </div>
         </div>
         <div class="col-md-6">
-            <h4>Existing Menus</h4>
-            <ul>
-                <?php foreach ($menus as $m) { ?>
-                    <li>
-                        <strong><?= htmlspecialchars($m->menu_name) ?> (<?= htmlspecialchars($m->label) ?>)</strong>
-                        - <a href="<?= base_url('admin/edit_menu/'.$m->id) ?>">Edit Items</a>
-                        - <a href="<?= base_url('admin/remove_menu/'.$m->id) ?>" onclick="return confirm('Remove menu?')">Delete</a>
-                    </li>
-                <?php } ?>
-            </ul>
+            <div class="dash-card">
+                <div class="content">
+                    <h4>Existing Menus</h4>
+                    <ul class="list-unstyled">
+                        <?php foreach ($menus as $m) { ?>
+                            <li style="padding:8px 0;border-bottom:1px dashed rgba(0,0,0,0.04);">
+                                <strong><?= htmlspecialchars($m->menu_name) ?> (<?= htmlspecialchars($m->label) ?>)</strong>
+                                <div style="margin-top:6px">
+                                    <a class="btn btn-default" href="<?= base_url('admin/edit_menu/'.$m->id) ?>">Edit Items</a>
+                                    <a class="btn btn-default" href="<?= base_url('admin/remove_menu/'.$m->id) ?>" onclick="return confirm('Remove menu?')">Delete</a>
+                                </div>
+                            </li>
+                        <?php } ?>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 </div>

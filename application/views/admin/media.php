@@ -10,34 +10,47 @@
 
     <div class="row">
         <div class="col-md-6">
-            <h4>Upload Media</h4>
-            <form method="post" enctype="multipart/form-data" action="<?= base_url('admin/add_media') ?>">
-                <div class="form-group">
-                    <label>File</label>
-                    <input type="file" name="file" class="form-control" />
+            <div class="dash-card">
+                <div class="content">
+                    <h4>Upload Media</h4>
+                    <form method="post" enctype="multipart/form-data" action="<?= base_url('admin/add_media') ?>">
+                        <div class="form-group">
+                            <label>File</label>
+                            <input type="file" name="file" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>Alt Text</label>
+                            <input type="text" name="alt" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>Caption</label>
+                            <textarea name="caption" class="form-control" rows="3"></textarea>
+                        </div>
+                        <button class="btn btn-primary">Upload</button>
+                    </form>
                 </div>
-                <div class="form-group">
-                    <label>Alt Text</label>
-                    <input type="text" name="alt" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label>Caption</label>
-                    <textarea name="caption" class="form-control" rows="3"></textarea>
-                </div>
-                <button class="btn btn-primary">Upload</button>
-            </form>
+            </div>
         </div>
         <div class="col-md-6">
-            <h4>Files</h4>
-            <ul>
-                <?php foreach ($media as $m) { ?>
-                    <li>
-                        <img src="<?= htmlspecialchars($m->file) ?>" style="height:40px;margin-right:10px;" />
-                        <?= htmlspecialchars($m->alt) ?>
-                        - <a href="<?= base_url('admin/remove_media/'.$m->id) ?>" onclick="return confirm('Remove media?')">Delete</a>
-                    </li>
-                <?php } ?>
-            </ul>
+            <div class="dash-card">
+                <div class="content">
+                    <h4>Files</h4>
+                    <ul class="list-unstyled">
+                        <?php foreach ($media as $m) { ?>
+                            <li style="padding:8px 0;border-bottom:1px dashed rgba(0,0,0,0.04); display:flex; align-items:center; gap:10px;">
+                                <img src="<?= htmlspecialchars($m->file) ?>" style="height:48px;width:auto;border-radius:6px;" />
+                                <div style="flex:1">
+                                    <div><?= htmlspecialchars($m->alt) ?></div>
+                                    <div class="muted small">Uploaded: <?= date('Y-m-d', strtotime($m->date_uploaded)) ?></div>
+                                </div>
+                                <div>
+                                    <a class="btn btn-default" href="<?= base_url('admin/remove_media/'.$m->id) ?>" onclick="return confirm('Remove media?')">Delete</a>
+                                </div>
+                            </li>
+                        <?php } ?>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 </div>
