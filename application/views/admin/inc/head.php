@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="<?= base_url("assets/css/style.css") ?>" type="text/css" />
     <link rel="stylesheet" href="<?= base_url("assets/css/responsive.css") ?>" type="text/css" />
     <link rel="stylesheet" href="<?= base_url("assets/css/admin.css") ?>" type="text/css" />
+    <link rel="stylesheet" href="<?= base_url("assets/css/ui-enhancements.css") ?>" type="text/css" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <script type="text/javascript" src="<?= base_url("assets/js/jquery.js") ?>"></script>
     <script>

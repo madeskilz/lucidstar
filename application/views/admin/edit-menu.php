@@ -40,7 +40,10 @@
         <div class="col-md-6">
             <h4>Menu Items (drag to reorder / nest)</h4>
             <p>Drag items to change order or make them children of other items. Click "Save Order" to persist.</p>
+            <div style="margin-bottom:8px">
             <button id="save-order" class="btn btn-sm btn-primary">Save Order</button>
+            <button id="undo-order" class="btn btn-sm btn-default" style="display:none;margin-left:8px;">Undo</button>
+            </div>
             <ol id="menu-items-list" class="nested-sortable" style="margin-top:10px;">
                 <?php
                 // Build tree from flat items
@@ -77,6 +80,7 @@
     function loadScript(src, cb){
         var s = document.createElement('script'); s.src = src; s.onload = cb; document.head.appendChild(s);
     }
+    var initialMenuHtml = null;
     function initNested(){
         if (!jQuery().nestedSortable) { console.error('nestedSortable not available'); return; }
         jQuery('#menu-items-list').nestedSortable({
@@ -86,8 +90,12 @@
             maxLevels: 5,
             protectRoot: false,
             forcePlaceholderSize: true,
-            placeholder: 'ns-placeholder'
+            placeholder: 'ns-placeholder',
+            stop: function() { jQuery('#undo-order').show(); }
         });
+
+        // capture an HTML snapshot for undo
+        if (!initialMenuHtml) initialMenuHtml = jQuery('#menu-items-list').html();
 
         document.getElementById('save-order').addEventListener('click', function(){
             var serialized = jQuery('#menu-items-list').nestedSortable('toArray', {startDepthCount: 0});
@@ -98,6 +106,13 @@
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.onload = function(){ if (xhr.status==200) { alert('Order saved'); location.reload(); } else { alert('Error saving order'); } };
             xhr.send('order=' + encodeURIComponent(payload));
+        }, false);
+        document.getElementById('undo-order').addEventListener('click', function(){
+            if (!initialMenuHtml) return; // nothing to undo
+            jQuery('#menu-items-list').html(initialMenuHtml);
+            // re-init nested sortable after replacing HTML
+            initNested();
+            jQuery('#undo-order').hide();
         }, false);
     }
     // load local vendor first (if present), fallback to CDN

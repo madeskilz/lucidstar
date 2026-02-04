@@ -19,60 +19,48 @@
             </div>
             <h3 class="col-md-12">Gallery Event Tags <a href="javascript:;" data-action="new" class="btn btn-info pull-right tag_action">New Tag</a></h3>
             <div class="col-md-12">
-                <ul class="e_tags">
-                    <?php foreach ($gallery_tags as $tag) { ?>
-                        <li style="margin-top:10px;">
-                            <?= $tag->tag_name ?>
-                            <div class="btn-group" style="display:inline-flex;margin-left:40px;">
-                                <a href="javascript:;" data-tag_id="<?= $tag->id ?>" data-tag_name="<?= $tag->tag_name ?>" data-tag_class="<?= $tag->tag_class ?>" data-action="edit" class="btn btn-info edit_gtag tag_action" style="min-width:0;width:40px;height:45px;" title="Edit <?= $tag->tag_name ?>"><i class="fa fa-edit"></i></a>
-                                <a data-href="<?= base_url("admin/remove_tag/$tag->id") ?>" class="btn_delete btn btn-danger" style="min-width:0;width:40px;height:45px;" title="Delete <?= $tag->tag_name ?>"><i class="fa fa-remove"></i></a>
-                            </div>
-                        </li>
-                    <?php } ?>
-                </ul>
+                <div class="dash-card">
+                    <div class="content">
+                        <h4>Gallery Event Tags <a href="javascript:;" data-action="new" class="btn btn-info pull-right tag_action">New Tag</a></h4>
+                        <div style="margin-top:10px;">
+                            <?php foreach ($gallery_tags as $tag) { ?>
+                                <span style="display:inline-block;margin:6px;padding:6px 10px;border-radius:6px;background:#fff;border:1px solid rgba(0,0,0,0.04);">
+                                    <?= htmlspecialchars($tag->tag_name) ?>
+                                    <span style="margin-left:10px">
+                                        <a href="javascript:;" data-tag_id="<?= $tag->id ?>" data-tag_name="<?= $tag->tag_name ?>" data-tag_class="<?= $tag->tag_class ?>" data-action="edit" class="btn btn-xs btn-info edit_gtag tag_action" title="Edit <?= htmlspecialchars($tag->tag_name) ?>"><i class="fa fa-edit"></i></a>
+                                        <a data-href="<?= base_url("admin/remove_tag/$tag->id") ?>" class="btn_delete btn btn-xs btn-danger" title="Delete <?= htmlspecialchars($tag->tag_name) ?>"> <i class="fa fa-remove"></i></a>
+                                    </span>
+                                </span>
+                            <?php } ?>
+                        </div>
+                    </div>
+                </div>
             </div>
             <h3 class="col-md-12" style="margin-top:20px;">Gallery <a href="<?= base_url("admin/add_img") ?>" class="btn btn-primary pull-right">New Image</a></h3>
-            <div class="col-md-12 table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>S/N</th>
-                            <th>Image</th>
-                            <th>Tags</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (count($gallery) == 0) { ?>
-                            <tr>
-                                <td colspan="4" class="text-center">No records found</td>
-                            </tr>
-                        <?php } ?>
-                        <?php $xx = 1;
-                        foreach ($gallery as $img) { ?>
-                            <tr>
-                                <td><?= $xx ?></td>
-                                <td><img style="width:300px;" src="<?= base_url("sitefiles/gallery/") . $img->image ?>" /></td>
-                                <td>
-                                    <?php
-                                        $tag_arr = explode(",", $img->tags);
-                                        //st = single tag
-                                        foreach ($tag_arr as $st) {
-                                            echo "<span class='badge badge-info'>$st</span>";
-                                        }
-                                        ?>
-                                </td>
-                                <td>
-                                    <div class="btn-group" style="display:inline-flex;">
-                                        <a href="<?= base_url("admin/edit_img/$img->id") ?>" class="btn btn-info" style="min-width:0;width:40px;height:45px;" title="Edit"><i class="fa fa-edit"></i></a>
-                                        <a data-href="<?= base_url("admin/remove_img/$img->id") ?>" class="btn_delete btn btn-danger" style="min-width:0;width:40px;height:45px;" title="Delete"><i class="fa fa-remove"></i></a>
+            <div class="col-md-12">
+                <?php if (empty($gallery)) { ?>
+                    <div class="dash-card">No images found</div>
+                <?php } else { ?>
+                    <div class="dashboard-grid">
+                        <?php foreach ($gallery as $img) { ?>
+                            <div>
+                                <div class="dash-card">
+                                    <div style="width:120px;flex:0 0 120px;">
+                                        <img src="<?= base_url('sitefiles/gallery/'.$img->image) ?>" style="width:120px;height:90px;object-fit:cover;border-radius:6px;" />
                                     </div>
-                                </td>
-                            </tr>
-                        <?php $xx++;
-                        } ?>
-                    </tbody>
-                </table>
+                                    <div class="content">
+                                        <div><?php $tag_arr = explode(",", $img->tags); foreach ($tag_arr as $st) echo '<span class="badge badge-info" style="margin-right:6px">'.htmlspecialchars($st).'</span>'; ?></div>
+                                        <div class="muted small">Uploaded: <?= date('Y-m-d', strtotime($img->date_uploaded)) ?></div>
+                                        <div class="dash-actions" style="margin-top:8px;">
+                                            <a class="btn btn-primary" href="<?= base_url('admin/edit_img/'.$img->id) ?>">Edit</a>
+                                            <a class="btn btn-default btn_delete" href="#" data-href="<?= base_url('admin/remove_img/'.$img->id) ?>">Delete</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php } ?>
+                    </div>
+                <?php } ?>
             </div>
         </div>
     </div>

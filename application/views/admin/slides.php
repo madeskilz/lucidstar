@@ -10,42 +10,31 @@
     <div class="ll">
         <div class="container">
             <h3 class="col-md-12"><a href="<?= base_url("admin/add_slide") ?>" class="btn btn-primary pull-right">New Slide</a></h3>
-            <div class="col-md-12 table-responsive">
+            <div class="col-md-12">
                 <?php $this->load->view("err-inc/msg") ?>
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>S/N</th>
-                            <th>Image</th>
-                            <th>Headline</th>
-                            <th>Body</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (count($slides) == 0) { ?>
-                            <tr>
-                                <td colspan="5" class="text-center">No records found</td>
-                            </tr>
-                        <?php } ?>
-                        <?php $xx = 1;
-                        foreach ($slides as $slide) { ?>
-                            <tr>
-                                <td><?= $xx ?></td>
-                                <td><img style="width:300px;" src="<?= base_url("sitefiles/slides/") . $slide->image ?>" /></td>
-                                <td><?= $slide->headline ?></td>
-                                <td><?= $slide->body ?></td>
-                                <td>
-                                    <div class="btn-group" style="display:inline-flex;">
-                                        <a href="<?= base_url("admin/edit_slide/$slide->id") ?>" class="btn btn-info" style="min-width:0;width:40px;height:45px;" title="Edit"><i class="fa fa-edit"></i></a>
-                                        <a data-href="<?= base_url("admin/remove_slide/$slide->id") ?>" class="btn_delete btn btn-danger" style="min-width:0;width:40px;height:45px;" title="Delete"><i class="fa fa-remove"></i></a>
+                <?php if (empty($slides)) { ?>
+                    <div class="dash-card">No slides found</div>
+                <?php } else { ?>
+                    <div class="dashboard-grid">
+                        <?php foreach ($slides as $slide) { ?>
+                            <div>
+                                <div class="dash-card">
+                                    <div style="width:140px;flex:0 0 140px;">
+                                        <img src="<?= base_url('sitefiles/slides/'.$slide->image) ?>" style="width:140px;height:90px;object-fit:cover;border-radius:6px;" />
                                     </div>
-                                </td>
-                            </tr>
-                        <?php $xx++;
-                        } ?>
-                    </tbody>
-                </table>
+                                    <div class="content">
+                                        <h4><?= htmlspecialchars($slide->headline) ?></h4>
+                                        <p class="muted" style="margin:0;"><?= htmlspecialchars($slide->body) ?></p>
+                                        <div class="dash-actions" style="margin-top:8px;">
+                                            <a class="btn btn-primary" href="<?= base_url('admin/edit_slide/'.$slide->id) ?>">Edit</a>
+                                            <a class="btn btn-default btn_delete" href="#" data-href="<?= base_url('admin/remove_slide/'.$slide->id) ?>">Delete</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php } ?>
+                    </div>
+                <?php } ?>
             </div>
         </div>
     </div>

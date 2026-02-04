@@ -1,6 +1,7 @@
 </div>
 <script type="text/javascript" src="<?= base_url("assets/js/plugin.js") ?>"></script>
 <script type="text/javascript" src="<?= base_url("assets/js/main.js") ?>"></script>
+<script type="text/javascript" src="<?= base_url("assets/js/ui-enhancements.js") ?>"></script>
 <script type="text/javascript">
 	jQuery(document).ready(function() {
 
@@ -11,7 +12,14 @@
 			slideshow: true,
 			pauseOnHover: false,
 			controlNav: false,
-			directionNav: true
+			directionNav: true,
+			start: function(slider){
+				// reveal captions on first slide
+				if (typeof window.revealActiveCaptions === 'function') window.revealActiveCaptions(slider.container);
+			},
+			after: function(slider){
+				if (typeof window.revealActiveCaptions === 'function') window.revealActiveCaptions(slider.container);
+			}
 		});
 
 	});

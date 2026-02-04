@@ -10,42 +10,29 @@
     <div class="ll">
         <div class="container">
             <h3 class="col-md-12"><a href="<?= base_url("admin/add_news") ?>" class="btn btn-primary pull-right">Add News</a></h3>
-            <div class="col-md-12 table-responsive">
+            <div class="col-md-12">
                 <?php $this->load->view("err-inc/msg") ?>
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>S/N</th>
-                            <th>Title</th>
-                            <th>Details</th>
-                            <th>Date</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (count($updates) == 0) { ?>
-                            <tr>
-                                <td colspan="5" class="text-center">No records found</td>
-                            </tr>
-                        <?php } ?>
-                        <?php $xx = 1;
-                        foreach ($updates as $up) { ?>
-                            <tr>
-                                <td><?= $xx ?></td>
-                                <td><?= $up->title ?></td>
-                                <td><?= $up->details ?></td>
-                                <td><?= $up->published ?></td>
-                                <td>
-                                    <div class="btn-group" style="display:inline-flex;">
-                                        <a href="<?= base_url("admin/edit_news/$up->id") ?>" class="btn btn-info" style="min-width:0;width:40px;height:45px;" title="Edit"><i class="fa fa-edit"></i></a>
-                                        <a data-href="<?= base_url("admin/remove_news/$up->id") ?>" class="btn_delete btn btn-danger" style="min-width:0;width:40px;height:45px;" title="Delete"><i class="fa fa-remove"></i></a>
+                <?php if (empty($updates)) { ?>
+                    <div class="dash-card">No news yet</div>
+                <?php } else { ?>
+                    <div class="dashboard-grid">
+                        <?php foreach ($updates as $up) { ?>
+                            <div>
+                                <div class="dash-card">
+                                    <div class="content">
+                                        <h4><?= htmlspecialchars($up->title) ?></h4>
+                                        <p class="muted" style="margin:0;"><?= htmlspecialchars(mb_strimwidth($up->details,0,140,'...')) ?></p>
+                                        <div class="muted small">Published: <?= htmlspecialchars($up->published) ?></div>
+                                        <div class="dash-actions" style="margin-top:8px;">
+                                            <a class="btn btn-primary" href="<?= base_url('admin/edit_news/'.$up->id) ?>">Edit</a>
+                                            <a class="btn btn-default btn_delete" href="#" data-href="<?= base_url('admin/remove_news/'.$up->id) ?>">Delete</a>
+                                        </div>
                                     </div>
-                                </td>
-                            </tr>
-                        <?php $xx++;
-                        } ?>
-                    </tbody>
-                </table>
+                                </div>
+                            </div>
+                        <?php } ?>
+                    </div>
+                <?php } ?>
             </div>
         </div>
     </div>

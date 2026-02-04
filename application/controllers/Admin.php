@@ -218,7 +218,12 @@ class Admin extends CI_Controller
     {
         $p["active"] = "news";
         $p["title"] = "News & Updates";
-        $p["updates"] = $this->db->get("news")->result();
+        // only non-deleted
+        if ($this->db->field_exists('is_deleted','news')) {
+            $p["updates"] = $this->db->where('is_deleted',0)->get("news")->result();
+        } else {
+            $p["updates"] = $this->db->get("news")->result();
+        }
         $this->load->view('admin/news', $p);
     }
     public function add_news()
@@ -268,10 +273,25 @@ class Admin extends CI_Controller
             return redirect("admin/news");
         }
 
-        $this->db->where('id', $id)->delete('news');
+        // ensure soft-delete column exists, then soft-delete
+        $this->ensure_soft_delete('news');
+        $this->db->where('id',$id)->set(['is_deleted'=>1,'deleted_at'=>date('Y-m-d H:i:s')])->update('news');
         $this->clear_dashboard_cache();
-        $this->session->set_flashdata('success_msg', "News deleted successfully");
+        $this->session->set_flashdata('success_msg', "News deleted. <a href='".base_url('admin/restore_news/'.$id)."'>Undo</a>");
         return redirect("admin/news");
+    }
+
+    public function restore_news($id)
+    {
+        if (!$id) { $this->session->set_flashdata('error_msg','Invalid id'); return redirect('admin/news'); }
+        if ($this->db->field_exists('is_deleted','news')) {
+            $this->db->where('id',$id)->set(['is_deleted'=>0,'deleted_at'=>null])->update('news');
+            $this->clear_dashboard_cache();
+            $this->session->set_flashdata('success_msg','News restored');
+        } else {
+            $this->session->set_flashdata('error_msg','Restore not supported');
+        }
+        return redirect('admin/news');
     }
 
     private function update_news($id)

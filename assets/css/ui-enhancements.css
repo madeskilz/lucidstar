@@ -1,0 +1,4 @@
+/* UI enhancement styles: caption reveal and count number */
+.caption { opacity: 0; transform: translateY(8px); transition: opacity .45s ease, transform .45s ease; }
+.caption-visible { opacity: 1 !important; transform: translateY(0) !important; }
+.count-number { font-weight:700; font-size:20px; display:inline-block; min-width:36px; }

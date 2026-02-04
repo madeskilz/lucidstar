@@ -20,7 +20,7 @@
                             <div class="dash-icon"><i class="fa fa-cog"></i></div>
                             <div class="content">
                                 <h4>Settings</h4>
-                                <p class="muted"><?php echo isset($c['settings']) ? $c['settings'] : '-'; ?> items</p>
+                                <p class="muted"><span class="count-number" data-count="<?= (int)(isset($c['settings'])?$c['settings']:0) ?>"><?php echo isset($c['settings']) ? $c['settings'] : '-'; ?></span> items</p>
                                 <div class="dash-actions">
                                     <a class="btn btn-primary" href="<?= base_url('admin/settings') ?>">Manage</a>
                                 </div>
@@ -32,7 +32,7 @@
                             <div class="dash-icon"><i class="fa fa-list"></i></div>
                             <div class="content">
                                 <h4>Menus</h4>
-                                <p class="muted"><?php echo isset($c['menus']) ? $c['menus'] : '-'; ?> menus, <?php echo isset($c['menu_items']) ? $c['menu_items'] : '-'; ?> items</p>
+                                <p class="muted"><span class="count-number" data-count="<?= (int)(isset($c['menus'])?$c['menus']:0) ?>"><?php echo isset($c['menus']) ? $c['menus'] : '-'; ?></span> menus, <span class="count-number" data-count="<?= (int)(isset($c['menu_items'])?$c['menu_items']:0) ?>"><?php echo isset($c['menu_items']) ? $c['menu_items'] : '-'; ?></span> items</p>
                                 <div class="dash-actions">
                                     <a class="btn btn-success" href="<?= base_url('admin/menus') ?>">Manage</a>
                                     <a class="btn btn-default" href="<?= base_url('admin/menus') ?>#add">Add Menu</a>
@@ -45,7 +45,7 @@
                             <div class="dash-icon"><i class="fa fa-photo"></i></div>
                             <div class="content">
                                 <h4>Media Library</h4>
-                                <p class="muted"><?php echo isset($c['media']) ? $c['media'] : '-'; ?> files</p>
+                                <p class="muted"><span class="count-number" data-count="<?= (int)(isset($c['media'])?$c['media']:0) ?>"><?php echo isset($c['media']) ? $c['media'] : '-'; ?></span> files</p>
                                 <div class="dash-actions">
                                     <a class="btn btn-success" href="<?= base_url('admin/media') ?>">Browse</a>
                                     <a class="btn btn-default" href="<?= base_url('admin/media') ?>#upload">Upload</a>
@@ -58,7 +58,7 @@
                             <div class="dash-icon"><i class="fa fa-bullhorn"></i></div>
                             <div class="content">
                                 <h4>CTAs</h4>
-                                <p class="muted"><?php echo isset($c['ctas']) ? $c['ctas'] : '-'; ?> items</p>
+                                <p class="muted"><span class="count-number" data-count="<?= (int)(isset($c['ctas'])?$c['ctas']:0) ?>"><?php echo isset($c['ctas']) ? $c['ctas'] : '-'; ?></span> items</p>
                                 <div class="dash-actions">
                                     <a class="btn btn-success" href="<?= base_url('admin/ctas') ?>">Manage</a>
                                 </div>
