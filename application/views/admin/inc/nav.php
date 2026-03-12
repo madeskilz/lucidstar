@@ -25,6 +25,7 @@
                         <li><a href="<?= base_url("admin") ?>">Dashboard</a></li>
                         <li><a href="<?= base_url("admin/news") ?>">News</a></li>
                         <li><a href="<?= base_url("admin/slides") ?>">Slides</a></li>
+                        <li><a href="<?= base_url("admin/pages") ?>">Pages</a></li>
                         <li><a href="<?= base_url("admin/gallery") ?>">Gallery</a></li>
                         <li><a href="<?= base_url("admin/about") ?>">About</a></li>
                         <li><a href="<?= base_url("logout") ?>">Logout</a></li>
@@ -39,6 +40,7 @@
                         <li class="<?= ($active === "slides") ? "active" : "" ?>"><a href="<?= base_url("admin/slides") ?>">Slides</a></li>
                         <li class="<?= ($active === "gallery") ? "active" : "" ?>"><a href="<?= base_url("admin/gallery") ?>">Gallery</a></li>
                         <li class="<?= ($active === "menus") ? "active" : "" ?>"><a href="<?= base_url("admin/menus") ?>">Menus</a></li>
+                        <li class="<?= ($active === "pages") ? "active" : "" ?>"><a href="<?= base_url("admin/pages") ?>">Pages</a></li>
                         <li class="<?= ($active === "media") ? "active" : "" ?>"><a href="<?= base_url("admin/media") ?>">Media</a></li>
                         <li class="<?= ($active === "ctas") ? "active" : "" ?>"><a href="<?= base_url("admin/ctas") ?>">CTAs</a></li>
                         <li class="<?= ($active === "settings") ? "active" : "" ?>"><a href="<?= base_url("admin/settings") ?>">Settings</a></li>

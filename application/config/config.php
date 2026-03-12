@@ -23,7 +23,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | a PHP script and you can easily do that on your own.
 |
 */
-$config['base_url'] = '';
+$config['base_url'] = getenv('BASE_URL') !== false ? getenv('BASE_URL') : 'http://localhost/lucidstar/';
 
 /*
 |--------------------------------------------------------------------------
@@ -136,7 +136,7 @@ $config['subclass_prefix'] = 'MY_';
 | Note: This will NOT disable or override the CodeIgniter-specific
 |	autoloading (application/config/autoload.php)
 */
-$config['composer_autoload'] = FALSE;
+$config['composer_autoload'] = (file_exists(APPPATH . 'vendor/autoload.php')) ? APPPATH . 'vendor/autoload.php' : FALSE;
 
 /*
 |--------------------------------------------------------------------------
@@ -377,10 +377,11 @@ $config['encryption_key'] = '';
 | except for 'cookie_prefix' and 'cookie_httponly', which are ignored here.
 |
 */
-$config['sess_driver'] = 'files';
+$config['sess_driver'] = (getenv('USE_DB_SESSIONS') === '1') ? 'database' : 'files';
 $config['sess_cookie_name'] = 'ci_session';
 $config['sess_expiration'] = 7200;
-$config['sess_save_path'] = APPPATH . 'cache/sessions';
+// sess_save_path: for 'files' driver set to local cache dir; for 'database' driver set to table name
+$config['sess_save_path'] = ($config['sess_driver'] === 'database') ? 'ci_sessions' : APPPATH . 'cache/sessions';
 $config['sess_match_ip'] = FALSE;
 $config['sess_time_to_update'] = 300;
 $config['sess_regenerate_destroy'] = FALSE;

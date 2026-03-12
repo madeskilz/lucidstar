@@ -10,3 +10,6 @@ $route['gallery'] = "home/gallery";
 $route['gallery/(:any)'] = "home/gallery/$1";
 $route['contact'] = "home/contact";
 $route['translate_uri_dashes'] = FALSE;
+
+// Catch-all: try to load a page by slug. Keep last to avoid overriding other routes.
+$route['(:any)'] = 'pages/view/$1';

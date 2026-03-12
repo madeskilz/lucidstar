@@ -14,8 +14,22 @@ LOGIN_OK=0
 for p in "${LOGIN_PATHS[@]}"; do
   LOGIN_URL="$BASE_URL${p}"
   echo "Trying login POST -> $LOGIN_URL"
-  # post login form; follow redirects; save cookies
-  HTTP_CODE=$(curl -s -S -L -c "$COOKIE_JAR" -d "login=testadmin&password=password" -o /dev/null -w "%{http_code}" "$LOGIN_URL") || true
+  # First fetch the login page to capture cookies and CSRF token (if present)
+  TMPPAGE=$(mktemp /tmp/login_page.XXXX)
+  curl -s -S -c "$COOKIE_JAR" -L "$LOGIN_URL" -o "$TMPPAGE" || true
+  # Try to extract a CodeIgniter CSRF token from a hidden input named according to default config
+  CSRF_NAME="csrf_test_name"
+  CSRF_VALUE=""
+  if grep -q "name=\"${CSRF_NAME}\"" "$TMPPAGE" 2>/dev/null; then
+    CSRF_VALUE=$(sed -n 's/.*name="csrf_test_name" value="\([^"]*\)".*/\1/p' "$TMPPAGE" || true)
+  fi
+  rm -f "$TMPPAGE"
+  # post login form; follow redirects; save cookies. Include CSRF token if found.
+  POST_DATA="login=testadmin&password=password"
+  if [ -n "$CSRF_VALUE" ]; then
+    POST_DATA="$POST_DATA&${CSRF_NAME}=${CSRF_VALUE}"
+  fi
+  HTTP_CODE=$(curl -s -S -L -c "$COOKIE_JAR" -d "$POST_DATA" -o /dev/null -w "%{http_code}" "$LOGIN_URL") || true
   echo " -> HTTP $HTTP_CODE"
   if [[ "$HTTP_CODE" =~ ^(200|302|301)$ ]]; then
     LOGIN_OK=1

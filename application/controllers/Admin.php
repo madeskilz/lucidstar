@@ -564,6 +564,90 @@ class Admin extends CI_Controller
         $this->load->view('admin/menus', $p);
     }
 
+    /**
+     * Pages management (basic CMS pages) — list and edit pages
+     */
+    public function pages()
+    {
+        $p['active'] = 'pages';
+        $p['title'] = 'Pages';
+        $this->load->model('Page_model');
+        // ensure table exists (best-effort): if not, instruct admin to run migration
+        if (!$this->db->table_exists('pages')) {
+            $p['pages'] = [];
+            $p['error_msg'] = 'Pages table does not exist. Run the migrations to create it.';
+        } else {
+            $p['pages'] = $this->Page_model->get_all();
+        }
+        $this->load->view('admin/pages', $p);
+    }
+
+    public function page_edit($id = null)
+    {
+        $this->load->model('Page_model');
+        if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
+            // save
+            $data = [
+                'title' => trim($this->input->post('title')),
+                'slug' => trim($this->input->post('slug')),
+                'content' => $this->input->post('content'),
+                'status' => $this->input->post('status') === 'published' ? 'published' : 'draft'
+            ];
+            // basic slug sanitization
+            $data['slug'] = preg_replace('/[^a-z0-9-]+/', '-', strtolower($data['slug']));
+            if ($data['slug'] == '') $data['slug'] = url_title($data['title'], '-', TRUE);
+
+            if ($id) {
+                if ($this->Page_model->slug_exists($data['slug'], $id)) {
+                    $this->session->set_flashdata('error_msg', 'Slug already in use');
+                    return redirect('admin/page_edit/' . $id);
+                }
+                $this->Page_model->update($id, $data);
+                $this->session->set_flashdata('success_msg', 'Page updated');
+            } else {
+                if ($this->Page_model->slug_exists($data['slug'])) {
+                    $this->session->set_flashdata('error_msg', 'Slug already in use');
+                    return redirect('admin/pages');
+                }
+                $new_id = $this->Page_model->insert($data);
+                $this->session->set_flashdata('success_msg', 'Page created');
+                $id = $new_id;
+            }
+            $this->clear_dashboard_cache();
+            return redirect('admin/pages');
+        }
+
+        $p['active'] = 'pages';
+        $p['title'] = $id ? 'Edit Page' : 'Add Page';
+        $p['page'] = null;
+        if ($id) {
+            $p['page'] = $this->Page_model->get($id);
+            if (!$p['page']) {
+                $this->session->set_flashdata('error_msg', 'Page not found');
+                return redirect('admin/pages');
+            }
+        }
+        $this->load->view('admin/edit-page', $p);
+    }
+
+    public function page_remove($id)
+    {
+        if (!$id) {
+            $this->session->set_flashdata('error_msg', 'Invalid id');
+            return redirect('admin/pages');
+        }
+        $this->load->model('Page_model');
+        $page = $this->Page_model->get($id);
+        if (!$page) {
+            $this->session->set_flashdata('error_msg', 'Page not found');
+            return redirect('admin/pages');
+        }
+        $this->Page_model->delete($id);
+        $this->clear_dashboard_cache();
+        $this->session->set_flashdata('success_msg', 'Page removed');
+        return redirect('admin/pages');
+    }
+
     public function add_menu()
     {
         if (strtolower($_SERVER['REQUEST_METHOD']) != 'post') return redirect('admin/menus');
