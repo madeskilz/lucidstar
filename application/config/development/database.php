@@ -74,13 +74,14 @@ $active_group = 'default';
 $query_builder = TRUE;
 
 $db['default'] = array(
-	'dsn'	=> '',
+    'dsn'    => '',
+    // Read DB config from environment variables where possible. Falls back to sensible defaults for local dev.
     // Use 127.0.0.1 to force TCP (avoids socket file mismatch on some setups)
-    'hostname' => '127.0.0.1',
-	'username' => 'root',
-	'password' => 'root',
-	'database' => 'lucidstar',
-	'dbdriver' => 'mysqli',
+    'hostname' => getenv('DB_HOST') ? getenv('DB_HOST') : '127.0.0.1',
+    'username' => getenv('DB_USER') ? getenv('DB_USER') : 'root',
+    'password' => getenv('DB_PASS') ? getenv('DB_PASS') : 'root',
+    'database' => getenv('DB_NAME') ? getenv('DB_NAME') : 'lucidstar',
+    'dbdriver' => getenv('DB_DRIVER') ? getenv('DB_DRIVER') : 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => FALSE,
 	'db_debug' => (ENVIRONMENT !== 'production'),

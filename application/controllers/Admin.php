@@ -836,4 +836,30 @@ class Admin extends CI_Controller
         $cache_file = APPPATH . 'cache/dashboard_counts.json';
         if (file_exists($cache_file)) @unlink($cache_file);
     }
+
+    /**
+     * Ensure soft-delete columns exist for a table. Best-effort: will attempt
+     * to ALTER the table to add `is_deleted` and `deleted_at` if they are missing.
+     * Returns true if columns exist or were created, false otherwise.
+     */
+    private function ensure_soft_delete($table)
+    {
+        if (!$this->db->table_exists($table)) return false;
+        $has_is = $this->db->field_exists('is_deleted', $table);
+        $has_deleted_at = $this->db->field_exists('deleted_at', $table);
+        if ($has_is && $has_deleted_at) return true;
+
+        // Attempt to add missing columns (use IF NOT EXISTS when supported)
+        $clauses = [];
+        if (!$has_is) $clauses[] = "ADD COLUMN IF NOT EXISTS `is_deleted` TINYINT(1) NOT NULL DEFAULT 0";
+        if (!$has_deleted_at) $clauses[] = "ADD COLUMN IF NOT EXISTS `deleted_at` DATETIME NULL";
+        if (empty($clauses)) return true;
+        $sql = "ALTER TABLE `" . $this->db->escape_str($table) . "` " . implode(', ', $clauses) . ";";
+        // best-effort: suppress warnings and return boolean
+        $res = @$this->db->query($sql);
+        // re-check
+        $has_is = $this->db->field_exists('is_deleted', $table);
+        $has_deleted_at = $this->db->field_exists('deleted_at', $table);
+        return ($has_is && $has_deleted_at) || $res === true;
+    }
 }

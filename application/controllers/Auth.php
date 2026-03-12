@@ -31,23 +31,50 @@ class Auth extends CI_Controller
     private function auth()
     {
         $login = trim($this->input->post('login'));
-        $password = md5(trim($this->input->post('password')));
-        $validate = $this->user_model->validate($login, $password);
-        if (count($validate) > 0) {
-            $data = array();
-            $data['user_id'] = $validate[0]->user_id;
-            $data['username'] = $validate[0]->username;
-            $data['email'] = $validate[0]->email;
-            $data['active'] = $validate[0]->active;
-            $data['level'] = $validate[0]->level;
-            $data['logged_in'] = true;
-            if ($data['active'] === '1') {
-                $this->session->set_userdata($data);
-                if ($data['level'] === '1') {
-                    redirect('admin');
+        $password = trim($this->input->post('password'));
+
+        $user = $this->user_model->get_by_login($login);
+
+        if ($user) {
+            $stored = $user->password;
+            $verified = false;
+
+            // If stored password looks like a PHP password_hash() value, verify with password_verify
+            if (is_string($stored) && strlen($stored) > 0 && strpos($stored, '$') === 0) {
+                if (password_verify($password, $stored)) {
+                    $verified = true;
+                    // Rehash if algorithm params changed
+                    if (password_needs_rehash($stored, PASSWORD_DEFAULT)) {
+                        $this->user_model->update_password($user->user_id, password_hash($password, PASSWORD_DEFAULT));
+                    }
                 }
             } else {
-                $this->session->set_flashdata('msg', 'Account Suspended');
+                // Fallback for existing MD5-hashed passwords: compare and migrate on successful login
+                if (md5($password) === $stored) {
+                    $verified = true;
+                    $this->user_model->update_password($user->user_id, password_hash($password, PASSWORD_DEFAULT));
+                }
+            }
+
+            if ($verified) {
+                $data = array();
+                $data['user_id'] = $user->user_id;
+                $data['username'] = $user->username;
+                $data['email'] = $user->email;
+                $data['active'] = $user->active;
+                $data['level'] = $user->level;
+                $data['logged_in'] = true;
+                if ($data['active'] === '1') {
+                    $this->session->set_userdata($data);
+                    if ($data['level'] === '1') {
+                        redirect('admin');
+                    }
+                } else {
+                    $this->session->set_flashdata('msg', 'Account Suspended');
+                    redirect("login");
+                }
+            } else {
+                $this->session->set_flashdata('error_msg', 'Username/Email or Password Incorrect!!');
                 redirect("login");
             }
         } else {
