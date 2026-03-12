@@ -14,6 +14,9 @@
                 <div class="content">
                     <h4>Upload Media</h4>
                     <form method="post" enctype="multipart/form-data" action="<?= base_url('admin/add_media') ?>">
+                        <?php if ($this->config->item('csrf_protection')): ?>
+                            <input type="hidden" name="<?= $this->security->get_csrf_token_name() ?>" value="<?= $this->security->get_csrf_hash() ?>" />
+                        <?php endif; ?>
                         <div class="form-group">
                             <label>File</label>
                             <input type="file" name="file" class="form-control" />
@@ -44,7 +47,7 @@
                                     <div class="muted small">Uploaded: <?= date('Y-m-d', strtotime($m->date_uploaded)) ?></div>
                                 </div>
                                 <div>
-                                    <a class="btn btn-default" href="<?= base_url('admin/remove_media/'.$m->id) ?>" onclick="return confirm('Remove media?')">Delete</a>
+                                    <a class="btn btn-default" href="<?= base_url('admin/remove_media/' . $m->id) ?>" onclick="return confirm('Remove media?')">Delete</a>
                                 </div>
                             </li>
                         <?php } ?>

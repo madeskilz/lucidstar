@@ -13,6 +13,9 @@
                 <a href="<?= base_url("admin/news") ?>" class="btn btn-danger pull-right" title="cancel" style="width:40px;height:40px;min-width:0;line-height:0;padding-top:10px;"><i class="fa fa-close"></i></a>
                 <h3>Edit <?= $news->title ?></h3>
                 <form method="post">
+                    <?php if ($this->config->item('csrf_protection')): ?>
+                        <input type="hidden" name="<?= $this->security->get_csrf_token_name() ?>" value="<?= $this->security->get_csrf_hash() ?>" />
+                    <?php endif; ?>
                     <div class="form-group">
                         <label for="title">Title</label>
                         <input type="text" name="title" id="title" class="form-control" value="<?= $news->title ?>" required>

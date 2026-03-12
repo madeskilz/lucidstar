@@ -17,32 +17,35 @@
                 <div class="dash-card">
                     <div class="content">
                         <form method="post" class="row">
+                            <?php if ($this->config->item('csrf_protection')): ?>
+                                <input type="hidden" name="<?= $this->security->get_csrf_token_name() ?>" value="<?= $this->security->get_csrf_hash() ?>" />
+                            <?php endif; ?>
                             <div class="col-sm-6">
-                                <input type="text" required name="school_name" placeholder="School Name" value="<?=$about->school_name?>" class="form-control">
-                            </div>
-                            <div class="col-sm-6">
-                                <input type="text" required name="slogan" placeholder="Slogan" value="<?=$about->slogan?>" class="form-control">
-                            </div>
-                            <div class="col-sm-12">
-                                <textarea required name="address" rows="3" placeholder="Address" class="form-control"><?=$about->address?></textarea>
+                                <input type="text" required name="school_name" placeholder="School Name" value="<?= $about->school_name ?>" class="form-control">
                             </div>
                             <div class="col-sm-6">
-                                <input type="text" required name="phone1" placeholder="Phonenumber 1" value="<?=$about->phone1?>" class="form-control">
+                                <input type="text" required name="slogan" placeholder="Slogan" value="<?= $about->slogan ?>" class="form-control">
+                            </div>
+                            <div class="col-sm-12">
+                                <textarea required name="address" rows="3" placeholder="Address" class="form-control"><?= $about->address ?></textarea>
                             </div>
                             <div class="col-sm-6">
-                                <input type="text" required name="phone2" placeholder="Phonenumber 2" value="<?=$about->phone2?>" class="form-control">
+                                <input type="text" required name="phone1" placeholder="Phonenumber 1" value="<?= $about->phone1 ?>" class="form-control">
+                            </div>
+                            <div class="col-sm-6">
+                                <input type="text" required name="phone2" placeholder="Phonenumber 2" value="<?= $about->phone2 ?>" class="form-control">
                             </div>
                             <div class="col-sm-12">
-                                <textarea required name="vision" rows="5" placeholder="Vision" class="form-control"><?=$about->vision?></textarea>
+                                <textarea required name="vision" rows="5" placeholder="Vision" class="form-control"><?= $about->vision ?></textarea>
                             </div>
                             <div class="col-sm-12">
-                                <textarea required name="mission" rows="5" placeholder="Mission" class="form-control"><?=$about->mission?></textarea>
+                                <textarea required name="mission" rows="5" placeholder="Mission" class="form-control"><?= $about->mission ?></textarea>
                             </div>
                             <div class="col-sm-12">
-                                <textarea required name="achievements" rows="5" placeholder="Achievements" class="form-control"><?=$about->achievements?></textarea>
+                                <textarea required name="achievements" rows="5" placeholder="Achievements" class="form-control"><?= $about->achievements ?></textarea>
                             </div>
                             <div class="col-sm-12">
-                                <textarea required name="about" rows="8" placeholder="About" class="form-control"><?=$about->about?></textarea>
+                                <textarea required name="about" rows="8" placeholder="About" class="form-control"><?= $about->about ?></textarea>
                             </div>
                             <div class="col-sm-12">
                                 <button class="submit button-normal green">Save School Profile</button>

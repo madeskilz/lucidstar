@@ -14,6 +14,9 @@
                 <div class="content">
                     <h4>Add CTA</h4>
                     <form method="post" action="<?= base_url('admin/add_cta') ?>">
+                        <?php if ($this->config->item('csrf_protection')): ?>
+                            <input type="hidden" name="<?= $this->security->get_csrf_token_name() ?>" value="<?= $this->security->get_csrf_hash() ?>" />
+                        <?php endif; ?>
                         <div class="form-group">
                             <label>Label</label>
                             <input type="text" name="label" class="form-control" />
@@ -47,7 +50,7 @@
                                     <div class="muted small"><?= htmlspecialchars($c->url) ?> <span style="margin-left:8px; color:#666;">(<?= htmlspecialchars($c->style) ?>)</span></div>
                                 </div>
                                 <div>
-                                    <a class="btn btn-default" href="<?= base_url('admin/remove_cta/'.$c->id) ?>" onclick="return confirm('Remove CTA?')">Delete</a>
+                                    <a class="btn btn-default" href="<?= base_url('admin/remove_cta/' . $c->id) ?>" onclick="return confirm('Remove CTA?')">Delete</a>
                                 </div>
                             </div>
                         <?php } ?>

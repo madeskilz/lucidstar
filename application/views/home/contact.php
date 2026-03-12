@@ -32,8 +32,11 @@
                         </div>
                         <div class="contact-content">
                             <h3>Contact us</h3>
-                            <?php $p1 = site_option('phone1', '08023148981'); $p2 = site_option('phone2', '08033160691'); ?>
-                            <p><?= htmlspecialchars($p1) ?><?php if ($p2) { echo ' | ' . htmlspecialchars($p2); } ?></p>
+                            <?php $p1 = site_option('phone1', '08023148981');
+                            $p2 = site_option('phone2', '08033160691'); ?>
+                            <p><?= htmlspecialchars($p1) ?><?php if ($p2) {
+                                                                echo ' | ' . htmlspecialchars($p2);
+                                                            } ?></p>
                             <?php $email = site_option('email', 'info@lucidstars.sch.ng'); ?>
                             <p><a href="mailto:<?= htmlspecialchars($email) ?>"><?= htmlspecialchars($email) ?></a></p>
                         </div>
@@ -42,6 +45,9 @@
 
                 <div class="contact-form col-md-8 wow fadeIn animated" style="visibility: visible; animation-name: fadeIn;">
                     <form method="post">
+                        <?php if ($this->config->item('csrf_protection')): ?>
+                            <input type="hidden" name="<?= $this->security->get_csrf_token_name() ?>" value="<?= $this->security->get_csrf_hash() ?>" />
+                        <?php endif; ?>
                         <input type="text" name="name" id="name" placeholder="Name">
                         <input type="text" name="email" id="email" placeholder="Email">
                         <input type="text" name="subject" id="subject" placeholder="Subject">

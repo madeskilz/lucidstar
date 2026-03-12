@@ -53,7 +53,11 @@
  *
  * NOTE: If you change these, also change the error_reporting() code below
  */
-	// define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'development');
+// define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'development');
+// Load .env file if present (lightweight loader)
+if (file_exists(__DIR__ . '/load_env.php')) {
+    require_once __DIR__ . '/load_env.php';
+}
 	require 'environment.php';
 /*
  *---------------------------------------------------------------

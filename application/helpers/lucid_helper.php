@@ -3,8 +3,8 @@ if (!function_exists("home_news")) {
     function home_news()
     {
         $ci = &get_instance();
-        $query = "SELECT * FROM news ORDER BY published DESC LIMIT 4";
-        $result = $ci->db->query($query)->result();
+        // use Query Builder to avoid raw queries and injection risks
+        $result = $ci->db->order_by('published', 'DESC')->limit(4)->get('news')->result();
         return $result;
     }
 }
@@ -12,8 +12,7 @@ if (!function_exists("homeSlides")) {
     function homeSlides()
     {
         $ci = &get_instance();
-        $query = "SELECT * FROM slides ORDER BY date DESC";
-        $result = $ci->db->query($query)->result();
+        $result = $ci->db->order_by('date', 'DESC')->get('slides')->result();
         return $result;
     }
 }
@@ -21,8 +20,7 @@ if (!function_exists("gallery_tags")) {
     function gallery_tags()
     {
         $ci = &get_instance();
-        $query = "SELECT * FROM gallery_tags ORDER BY `tag_name`";
-        $result = $ci->db->query($query)->result();
+        $result = $ci->db->order_by('tag_name', 'ASC')->get('gallery_tags')->result();
         return $result;
     }
 }

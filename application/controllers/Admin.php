@@ -113,6 +113,77 @@ class Admin extends CI_Controller
         $this->load->view('admin/settings', $p);
     }
 
+    /**
+     * Homepage editor — edit hero, hero subtext, hero image and blocks.
+     */
+    public function homepage()
+    {
+        if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
+            $this->update_homepage();
+        }
+        $p['active'] = 'homepage';
+        $p['title'] = 'Homepage Editor';
+
+        // load hero fields from settings
+        $keys = ['hero_heading', 'hero_subtext', 'hero_image', 'homepage_sections'];
+        if ($this->db->table_exists('settings')) {
+            foreach ($keys as $k) {
+                $row = $this->db->where('skey', $k)->get('settings', 1)->row();
+                $p[$k] = ($row && isset($row->svalue)) ? $row->svalue : '';
+            }
+        } else {
+            foreach ($keys as $k) $p[$k] = '';
+        }
+
+        $this->load->view('admin/homepage', $p);
+    }
+
+    private function update_homepage()
+    {
+        // handle hero image upload
+        if (isset($_FILES) && isset($_FILES['hero_image']) && $_FILES['hero_image']['name'] != '') {
+            $imagePrefix = time();
+            $imagename = $imagePrefix . $_FILES['hero_image']['name'];
+            $path = './sitefiles/media/';
+            if (!is_dir($path)) @mkdir($path, 0755, true);
+            $config['upload_path'] = $path;
+            $config['allowed_types'] = 'jpeg|gif|jpg|png|svg|webp';
+            $config['file_name'] = $imagename;
+            $this->load->library('upload', $config);
+            if (!$this->upload->do_upload('hero_image')) {
+                $this->session->set_flashdata('error_msg', $this->upload->display_errors());
+                return redirect('admin/homepage');
+            } else {
+                $upload_data = $this->upload->data();
+                $hero_url = base_url('sitefiles/media/' . $upload_data['file_name']);
+                $this->db->where('skey', 'hero_image');
+                $exists = $this->db->get('settings', 1)->row();
+                if ($exists) {
+                    $this->db->where('skey', 'hero_image')->set('svalue', $hero_url)->update('settings');
+                } else {
+                    $this->db->insert('settings', ['skey' => 'hero_image', 'svalue' => $hero_url]);
+                }
+            }
+        }
+
+        // save text fields and sections JSON
+        $keys = ['hero_heading', 'hero_subtext', 'homepage_sections'];
+        foreach ($keys as $k) {
+            $v = trim($this->input->post($k));
+            $this->db->where('skey', $k);
+            $exists = $this->db->get('settings', 1)->row();
+            if ($exists) {
+                $this->db->where('skey', $k)->set('svalue', $v)->update('settings');
+            } else {
+                $this->db->insert('settings', ['skey' => $k, 'svalue' => $v]);
+            }
+        }
+
+        $this->session->set_flashdata('success_msg', 'Homepage saved.');
+        $this->clear_dashboard_cache();
+        return redirect('admin/homepage');
+    }
+
     private function update_settings()
     {
         // keys we'll accept from the form (add hero and stats keys)

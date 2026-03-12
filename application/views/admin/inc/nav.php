@@ -34,9 +34,14 @@
                 <nav id="main-menu" class="menu">
                     <ul id="menu-top-menu" class="menus">
                         <li class="<?= ($active === "home") ? "active" : "" ?>"><a href="<?= base_url("admin") ?>">Dashboard</a></li>
+                        <li class="<?= ($active === "homepage") ? "active" : "" ?>"><a href="<?= base_url("admin/homepage") ?>">Homepage</a></li>
                         <li class="<?= ($active === "news") ? "active" : "" ?>"><a href="<?= base_url("admin/news") ?>">News</a></li>
                         <li class="<?= ($active === "slides") ? "active" : "" ?>"><a href="<?= base_url("admin/slides") ?>">Slides</a></li>
                         <li class="<?= ($active === "gallery") ? "active" : "" ?>"><a href="<?= base_url("admin/gallery") ?>">Gallery</a></li>
+                        <li class="<?= ($active === "menus") ? "active" : "" ?>"><a href="<?= base_url("admin/menus") ?>">Menus</a></li>
+                        <li class="<?= ($active === "media") ? "active" : "" ?>"><a href="<?= base_url("admin/media") ?>">Media</a></li>
+                        <li class="<?= ($active === "ctas") ? "active" : "" ?>"><a href="<?= base_url("admin/ctas") ?>">CTAs</a></li>
+                        <li class="<?= ($active === "settings") ? "active" : "" ?>"><a href="<?= base_url("admin/settings") ?>">Settings</a></li>
                         <li class="<?= ($active === "about") ? "active" : "" ?>"><a href="<?= base_url("admin/about") ?>">About</a></li>
                         <li><a href="<?= base_url("logout") ?>">Logout</a></li>
                     </ul>

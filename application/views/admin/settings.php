@@ -12,6 +12,9 @@
         <div class="dash-card">
             <div class="content">
                 <form method="post" enctype="multipart/form-data" action="<?= base_url('admin/settings') ?>">
+                    <?php if ($this->config->item('csrf_protection')): ?>
+                        <input type="hidden" name="<?= $this->security->get_csrf_token_name() ?>" value="<?= $this->security->get_csrf_hash() ?>" />
+                    <?php endif; ?>
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label>Site Name</label>
@@ -34,30 +37,30 @@
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label>Homepage Hero Heading</label>
-                            <input type="text" name="hero_heading" class="form-control" value="<?= htmlspecialchars(isset($hero_heading)?$hero_heading:'') ?>" />
+                            <input type="text" name="hero_heading" class="form-control" value="<?= htmlspecialchars(isset($hero_heading) ? $hero_heading : '') ?>" />
                         </div>
                         <div class="form-group col-md-6">
                             <label>Homepage Hero Subtext</label>
-                            <input type="text" name="hero_subtext" class="form-control" value="<?= htmlspecialchars(isset($hero_subtext)?$hero_subtext:'') ?>" />
+                            <input type="text" name="hero_subtext" class="form-control" value="<?= htmlspecialchars(isset($hero_subtext) ? $hero_subtext : '') ?>" />
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group col-md-3">
                             <label>Staff Count</label>
-                            <input type="text" name="stat_staff" class="form-control" value="<?= htmlspecialchars(isset($stat_staff)?$stat_staff:'24') ?>" />
+                            <input type="text" name="stat_staff" class="form-control" value="<?= htmlspecialchars(isset($stat_staff) ? $stat_staff : '24') ?>" />
                         </div>
                         <div class="form-group col-md-3">
                             <label>Students Count</label>
-                            <input type="text" name="stat_students" class="form-control" value="<?= htmlspecialchars(isset($stat_students)?$stat_students:'80') ?>" />
+                            <input type="text" name="stat_students" class="form-control" value="<?= htmlspecialchars(isset($stat_students) ? $stat_students : '80') ?>" />
                         </div>
                         <div class="form-group col-md-3">
                             <label>Classes Count</label>
-                            <input type="text" name="stat_classes" class="form-control" value="<?= htmlspecialchars(isset($stat_classes)?$stat_classes:'8') ?>" />
+                            <input type="text" name="stat_classes" class="form-control" value="<?= htmlspecialchars(isset($stat_classes) ? $stat_classes : '8') ?>" />
                         </div>
                         <div class="form-group col-md-3">
                             <label>Labs Count</label>
-                            <input type="text" name="stat_labs" class="form-control" value="<?= htmlspecialchars(isset($stat_labs)?$stat_labs:'4') ?>" />
+                            <input type="text" name="stat_labs" class="form-control" value="<?= htmlspecialchars(isset($stat_labs) ? $stat_labs : '4') ?>" />
                         </div>
                     </div>
 
@@ -110,4 +113,4 @@
             </div>
         </div>
     </div>
-<?php $this->load->view('admin/inc/footer') ?>
+    <?php $this->load->view('admin/inc/footer') ?>

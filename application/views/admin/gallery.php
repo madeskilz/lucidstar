@@ -46,14 +46,15 @@
                             <div>
                                 <div class="dash-card">
                                     <div style="width:120px;flex:0 0 120px;">
-                                        <img src="<?= base_url('sitefiles/gallery/'.$img->image) ?>" style="width:120px;height:90px;object-fit:cover;border-radius:6px;" />
+                                        <img src="<?= base_url('sitefiles/gallery/' . $img->image) ?>" style="width:120px;height:90px;object-fit:cover;border-radius:6px;" />
                                     </div>
                                     <div class="content">
-                                        <div><?php $tag_arr = explode(",", $img->tags); foreach ($tag_arr as $st) echo '<span class="badge badge-info" style="margin-right:6px">'.htmlspecialchars($st).'</span>'; ?></div>
+                                        <div><?php $tag_arr = explode(",", $img->tags);
+                                                foreach ($tag_arr as $st) echo '<span class="badge badge-info" style="margin-right:6px">' . htmlspecialchars($st) . '</span>'; ?></div>
                                         <div class="muted small">Uploaded: <?= date('Y-m-d', strtotime($img->date_uploaded)) ?></div>
                                         <div class="dash-actions" style="margin-top:8px;">
-                                            <a class="btn btn-primary" href="<?= base_url('admin/edit_img/'.$img->id) ?>">Edit</a>
-                                            <a class="btn btn-default btn_delete" href="#" data-href="<?= base_url('admin/remove_img/'.$img->id) ?>">Delete</a>
+                                            <a class="btn btn-primary" href="<?= base_url('admin/edit_img/' . $img->id) ?>">Edit</a>
+                                            <a class="btn btn-default btn_delete" href="#" data-href="<?= base_url('admin/remove_img/' . $img->id) ?>">Delete</a>
                                         </div>
                                     </div>
                                 </div>
@@ -69,6 +70,9 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <form method="post" action="<?= base_url("admin/gallery_tag") ?>">
+                <?php if ($this->config->item('csrf_protection')): ?>
+                    <input type="hidden" name="<?= $this->security->get_csrf_token_name() ?>" value="<?= $this->security->get_csrf_hash() ?>" />
+                <?php endif; ?>
                 <div class="modal-header">
                     <h5 class="modal-title" id="title">Update Tag Details</h5>
                 </div>
